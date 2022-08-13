@@ -1,33 +1,47 @@
-import {EMOTIONS} from '../constants.js';
-import {getRandomInteger} from '../utilities.js';
+import {
+  EMOTIONS,
+  TEMP_DESCRIPTION,
+  TEMP_TITLES,
+  TEMP_POSTERS,
+  TEMP_FILM_STUFF,
+  TEMP_RELEASE_COUNTRIES,
+  TEMP_GENRES,
+} from '../constants.js';
+import {
+  getRandomInteger,
+  getRandomFloat,
+  translitLatinToCyrillic,
+} from '../utilities.js';
+
+let filmIdCounter = 0;
 
 const getFilmData = () => ({
-  id: '0',
+  id: filmIdCounter++,
   comments: [
-    123, 456
+    123, 456, 789
   ],
   filmInfo: {
-    title: 'A Little Pony Without The Carpet',
-    alternativeTitle: 'Laziness Who Sold Themselves',
-    totalRating: 5.3,
-    poster: 'images/posters/blue-blazes.jpg',
-    ageRating: 0,
-    director: 'Tom Ford',
+    title: TEMP_TITLES[getRandomInteger(0, TEMP_TITLES.length - 1)],
+    alternativeTitle: translitLatinToCyrillic(TEMP_TITLES[getRandomInteger(0, TEMP_TITLES.length - 1)]),
+    totalRating: getRandomFloat(0, 10, 1),
+    poster: `images/posters/${TEMP_POSTERS[getRandomInteger(0, TEMP_POSTERS.length - 1)]}`,
+    ageRating: getRandomInteger(0, 5),
+    director: `${TEMP_FILM_STUFF[getRandomInteger(0, TEMP_FILM_STUFF.length - 1)]}`,
     writers: [
-      'Takeshi Kitano'
+      `${TEMP_FILM_STUFF[getRandomInteger(0, TEMP_FILM_STUFF.length - 1)]}`
     ],
     actors: [
-      'Morgan Freeman'
+      `${TEMP_FILM_STUFF[getRandomInteger(0, TEMP_FILM_STUFF.length - 1)]}`
     ],
     release: {
-      date: '2019-05-11T00:00:00.000Z',
-      releaseCountry: 'Finland'
+      date: getRandomInteger(1991, 2020),
+      releaseCountry: `${TEMP_RELEASE_COUNTRIES[getRandomInteger(0, TEMP_RELEASE_COUNTRIES.length - 1)]}`
     },
-    runtime: 77,
+    runtime: getRandomInteger(0, 240),
     genre: [
-      'Comedy'
+      `${TEMP_GENRES[getRandomInteger(0, TEMP_GENRES.length - 1)]}`
     ],
-    description: 'Oscar-winning film, a war drama about two young people, from the creators of timeless classic \'Nu, Pogodi!\' and \'Alice in Wonderland\', with the best fight scenes since Bruce Lee.'
+    description: TEMP_DESCRIPTION.slice(0, getRandomInteger(0, TEMP_DESCRIPTION.length))
   },
   userDetails: {
     watchlist: false,
@@ -39,7 +53,7 @@ const getFilmData = () => ({
 
 const getComment = () => ({
   id: '42',
-  author: 'Ilya O\'Reilly',
+  author: `${TEMP_FILM_STUFF[getRandomInteger(0, TEMP_FILM_STUFF.length - 1)]}`,
   comment: 'a film that changed my life, a true masterpiece, post-credit scene was just amazing omg.',
   date: '2019-05-11T16:12:32.554Z',
   emotion: EMOTIONS[getRandomInteger(0, EMOTIONS.length)],
