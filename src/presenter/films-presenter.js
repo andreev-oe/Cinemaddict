@@ -1,5 +1,5 @@
 import {
-  EXTRA_FILMS_CARDS_AMOUNT,
+  EXTRA_FILMS_CARDS_AMOUNT, TEMP_TITLES,
 } from '../constants.js';
 import FilmCardView from '../view/film-card-view.js';
 import FilmsListContainerView from '../view/films-list-container-view.js';
@@ -10,7 +10,9 @@ import FilmsSortView from '../view/films-sort-view.js';
 import NavigationView from '../view/navigation-view.js';
 import ProfileView from '../view/profile-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
+import FilmPopupView from '../view/film-popup-view.js';
 import {render} from '../render.js';
+import {getRandomInteger} from '../utilities.js';
 
 export default class FilmsPresenter {
   filmsMainContainerComponent = new FilmsContainerView();
@@ -41,5 +43,6 @@ export default class FilmsPresenter {
         render(new FilmCardView(this.films[i], this.comments[i]), this.filmsListExtraContainerComponent.getElement());
       }
     }
+    render(new FilmPopupView(this.films[getRandomInteger(0, TEMP_TITLES.length - 1)]), this.mainContainer);
   };
 }
