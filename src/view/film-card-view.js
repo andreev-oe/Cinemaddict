@@ -1,8 +1,8 @@
 import {createElement} from '../render.js';
 
-const createFilmCardElement = () => `<article class="film-card">
+const createFilmCardElement = (film) => `<article class="film-card">
           <a class="film-card__link">
-            <h3 class="film-card__title">The Dance of Life</h3>
+            <h3 class="film-card__title">${film.filmInfo.title}</h3>
             <p class="film-card__rating">8.3</p>
             <p class="film-card__info">
               <span class="film-card__year">1929</span>
@@ -11,7 +11,7 @@ const createFilmCardElement = () => `<article class="film-card">
             </p>
             <img src="./images/posters/the-dance-of-life.jpg" alt="" class="film-card__poster">
             <p class="film-card__description">Burlesque comic Ralph "Skid" Johnson (Skelly), and specialty dancer Bonny Lee King (Carroll), end up together on a cold, rainy night at a tr…</p>
-            <span class="film-card__comments">5 comments</span>
+            <span class="film-card__comments">${film.comments.length} comments</span>
           </a>
           <div class="film-card__controls">
             <button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>
@@ -21,8 +21,12 @@ const createFilmCardElement = () => `<article class="film-card">
         </article>`;
 
 export default class FilmCardView {
+  constructor(film) {
+    this.film = film;
+  }
+
   getTemplate () {
-    return createFilmCardElement();
+    return createFilmCardElement(this.film);
   }
 
   getElement () {
