@@ -43,6 +43,6 @@ export default class FilmsPresenter {
         render(new FilmCardView(this.films[i], this.comments[i]), this.filmsListExtraContainerComponent.getElement());
       }
     }
-    render(new FilmPopupView(this.films[getRandomInteger(0, TEMP_TITLES.length - 1)]), this.mainContainer);
+    render(new FilmPopupView(this.films[getRandomInteger(0, TEMP_TITLES.length - 1)], this.comments), this.mainContainer);
   };
 }
