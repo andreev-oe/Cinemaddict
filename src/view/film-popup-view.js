@@ -72,11 +72,11 @@ const createFilmPopupElement = (film, commentsText) => {
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Writers</td>
-              <td class="film-details__cell">${writers}</td>
+              <td class="film-details__cell">${writers.join(', ')}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Actors</td>
-              <td class="film-details__cell">${actors}</td>
+              <td class="film-details__cell">${actors.join(', ')}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
@@ -154,23 +154,27 @@ const createFilmPopupElement = (film, commentsText) => {
 };
 
 export default class FilmPopupView {
+  #element = null;
+  #film = null;
+  #commentsText = null;
+
   constructor(film, commentsText) {
-    this.film = film;
-    this.commentsText = commentsText;
+    this.#film = film;
+    this.#commentsText = commentsText;
   }
 
-  getTemplate () {
-    return createFilmPopupElement(this.film, this.commentsText);
+  get template () {
+    return createFilmPopupElement(this.#film, this.#commentsText);
   }
 
-  getElement () {
-    if(!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element () {
+    if(!this.#element) {
+      this.#element = createElement(this.template);
     }
-    return this.element;
+    return this.#element;
   }
 
   removeElement () {
-    this.element = null;
+    this.#element = null;
   }
 }
