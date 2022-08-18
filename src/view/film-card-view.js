@@ -13,7 +13,7 @@ const createFilmCardElement = (film) => {
               <span class="film-card__duration">${runtime}</span>
               <span class="film-card__genre">${genre[0]}</span>
             </p>
-            <img src="${poster}" alt="" class="film-card__poster">
+            <img src="${poster}" alt="" class="film-card__poster" data-film-id="${film.id}">
             <p class="film-card__description">${description}</p>
             <span class="film-card__comments">${length} comments</span>
           </a>

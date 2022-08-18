@@ -1,6 +1,4 @@
-import {
-  EXTRA_FILMS_CARDS_AMOUNT, TEMP_TITLES,
-} from '../constants.js';
+import {EXTRA_FILMS_CARDS_AMOUNT} from '../constants.js';
 import FilmCardView from '../view/film-card-view.js';
 import FilmsListContainerView from '../view/films-list-container-view.js';
 import FilmsListSectionView from '../view/films-list-section-view.js';
@@ -12,7 +10,6 @@ import ProfileView from '../view/profile-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import FilmPopupView from '../view/film-popup-view.js';
 import {render} from '../render.js';
-import {getRandomInteger} from '../utilities.js';
 
 export default class FilmsPresenter {
   #filmsMainContainerComponent = new FilmsContainerView();
@@ -28,6 +25,11 @@ export default class FilmsPresenter {
     this.#mainContainer = mainContainer;
     this.#films = [...filmsModel.films];
     this.#comments = [...filmsModel.comments];
+    this.#renderPage();
+    this.#renderPopup();
+  };
+
+  #renderPage = () => {
     render(new ProfileView(), this.#headerContainer);
     render(new NavigationView(), this.#mainContainer);
     render(new FilmsSortView(), this.#mainContainer);
@@ -47,6 +49,33 @@ export default class FilmsPresenter {
         render(new FilmCardView(this.#films[i], this.#comments[i]), this.filmsListExtraContainerComponent.element);
       }
     }
-    render(new FilmPopupView(this.#films[getRandomInteger(0, TEMP_TITLES.length - 1)], this.#comments), this.#mainContainer);
+  };
+
+  #renderPopup = () => {
+    const onEscKeyDown = (evt) => {
+      if (evt.key === 'Escape') {
+        evt.preventDefault();
+        document.body.classList.remove('hide-overflow');
+        document.body.removeEventListener('keydown', onEscKeyDown);
+        this.#mainContainer.lastChild.remove();
+      }
+    };
+
+    const onClosePopupButtonClick = () => {
+      document.body.classList.remove('hide-overflow');
+      document.body.removeEventListener('keydown', onEscKeyDown);
+      this.#mainContainer.lastChild.remove();
+    };
+
+    const onFilmImgClick = (evt) => {
+      if (evt.target.nodeName === 'IMG' && evt.target.dataset.filmId){
+        document.body.classList.add('hide-overflow');
+        document.body.addEventListener('keydown', onEscKeyDown);
+        render(new FilmPopupView(this.#films[evt.target.dataset.filmId], this.#comments), this.#mainContainer);
+        const closePopupButtonElement = this.#mainContainer.lastChild.querySelector('.film-details__close-btn');
+        closePopupButtonElement.addEventListener('click', onClosePopupButtonClick);
+      }
+    };
+    document.body.addEventListener('click', onFilmImgClick);
   };
 }

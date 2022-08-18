@@ -19,7 +19,7 @@ import {
   getRandomInteger,
   getRandomFloat,
   translitLatinToCyrillic,
-} from '../utilities.js';
+} from '../utils/utilities.js';
 import dayjs from 'dayjs';
 
 

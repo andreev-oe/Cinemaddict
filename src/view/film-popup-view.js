@@ -40,7 +40,7 @@ const createFilmPopupElement = (film, commentsText) => {
   const {title, description, release, poster, genre, runtime, actors, writers, director, totalRating, ageRating} = film.filmInfo;
   const {favorite, alreadyWatched, watchlist} = film.userDetails;
   const {length} = film.comments;
-  return `<section class="film-details visually-hidden">
+  return `<section class="film-details">
   <div class="film-details__inner">
     <div class="film-details__top-container">
       <div class="film-details__close">
