@@ -19,7 +19,7 @@ import {
   getRandomInteger,
   getRandomFloat,
   translitLatinToCyrillic,
-} from '../utilities.js';
+} from '../utils/utilities.js';
 import dayjs from 'dayjs';
 
 
@@ -52,8 +52,8 @@ const getFilmData = () => ({
     poster: `images/posters/${TEMP_POSTERS[getRandomInteger(0, TEMP_POSTERS.length - 1)]}`,
     ageRating: `${getRandomInteger(TEMP_AGE.MIN, TEMP_AGE.MAX)}+`,
     director: `${TEMP_FILM_STUFF[getRandomInteger(TEMP_FILM_STUFF_AMOUNT.MIN, TEMP_FILM_STUFF.length - 1)]}`,
-    writers: [getSmthList(TEMP_FILM_STUFF).join(', ')],
-    actors: [getSmthList(TEMP_FILM_STUFF).join(', ')],
+    writers: getSmthList(TEMP_FILM_STUFF),
+    actors: getSmthList(TEMP_FILM_STUFF),
     release: {
       date:getRandomInteger(TEMP_DATES.Y_MIN, TEMP_DATES.Y_MAX),
       releaseCountry: `${TEMP_RELEASE_COUNTRIES[getRandomInteger(0, TEMP_RELEASE_COUNTRIES.length - 1)]}`
