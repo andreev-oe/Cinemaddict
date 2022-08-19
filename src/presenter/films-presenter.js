@@ -81,26 +81,29 @@ export default class FilmsPresenter {
         evt.preventDefault();
         document.body.classList.remove('hide-overflow');
         document.body.removeEventListener('keydown', onEscKeyDown);
-        this.#mainContainer.lastChild.remove();
+        this.#filmPopup.element.remove();
+        this.#filmPopup.removeElement();
       }
     };
 
     const onClosePopupButtonClick = () => {
       document.body.classList.remove('hide-overflow');
       document.body.removeEventListener('keydown', onEscKeyDown);
-      this.#mainContainer.lastChild.remove();
+      this.#filmPopup.element.remove();
+      this.#filmPopup.removeElement();
     };
 
     const onFilmImgClick = (evt) => {
       if (evt.target.nodeName === 'IMG' && evt.target.dataset.filmId){
-        const popup = document.querySelector('.film-details');
-        if (popup) {
-          popup.remove();
+        if (this.#filmPopup) {
+          this.#filmPopup.element.remove();
+          this.#filmPopup.removeElement();
         }
         document.body.classList.add('hide-overflow');
         document.body.addEventListener('keydown', onEscKeyDown);
-        render(new FilmPopupView(this.#films[evt.target.dataset.filmId], this.#comments), this.#mainContainer);
-        const closePopupButtonElement = this.#mainContainer.lastChild.querySelector('.film-details__close-btn');
+        this.#filmPopup = new FilmPopupView(this.#films[evt.target.dataset.filmId], this.#comments);
+        render(this.#filmPopup, this.#mainContainer);
+        const closePopupButtonElement = this.#filmPopup.element.querySelector('.film-details__close-btn');
         closePopupButtonElement.addEventListener('click', onClosePopupButtonClick);
       }
     };
