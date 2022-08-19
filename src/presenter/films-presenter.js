@@ -26,6 +26,7 @@ export default class FilmsPresenter {
   #mainContainer = null;
   #films = null;
   #comments = null;
+  #filmPopup = null;
 
   init = (headerContainer, mainContainer, filmsModel) => {
     this.#headerContainer = headerContainer;
@@ -92,9 +93,13 @@ export default class FilmsPresenter {
 
     const onFilmImgClick = (evt) => {
       if (evt.target.nodeName === 'IMG' && evt.target.dataset.filmId){
+        if (this.#filmPopup) {
+          this.#filmPopup.remove();
+          this.#filmPopup.element.removeElement();
+        }
         document.body.classList.add('hide-overflow');
         document.body.addEventListener('keydown', onEscKeyDown);
-        render(new FilmPopupView(this.#films[evt.target.dataset.filmId], this.#comments), this.#mainContainer);
+        this.#filmPopup = render(new FilmPopupView(this.#films[evt.target.dataset.filmId], this.#comments), this.#mainContainer);
         const closePopupButtonElement = this.#mainContainer.lastChild.querySelector('.film-details__close-btn');
         closePopupButtonElement.addEventListener('click', onClosePopupButtonClick);
       }
