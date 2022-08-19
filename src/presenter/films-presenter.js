@@ -93,7 +93,7 @@ export default class FilmsPresenter {
 
     const onFilmImgClick = (evt) => {
       if (evt.target.nodeName === 'IMG' && evt.target.dataset.filmId){
-        const popup = document.querySelector('.film-details')
+        const popup = document.querySelector('.film-details');
         if (popup) {
           popup.remove();
         }
