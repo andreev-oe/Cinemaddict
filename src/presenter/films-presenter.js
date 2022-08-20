@@ -40,15 +40,6 @@ export default class FilmsPresenter {
     this.#renderPopup();
   };
 
-  #onShowMoreButtonClick = () => {
-    this.#films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film) => render(new FilmCardView(film, this.#comments[film.id]), this.#filmContainerComponent.element));
-    this.#renderedFilmCards += FILMS_PORTION;
-    if (this.#renderedFilmCards >= this.#films.length) {
-      this.#showMoreButton.element.remove();
-      this.#showMoreButton.removeElement();
-    }
-  };
-
   #renderPage = () => {
     render(new ProfileView(), this.#headerContainer);
     render(new NavigationView(), this.#mainContainer);
@@ -75,6 +66,15 @@ export default class FilmsPresenter {
     } else {
       render(this.#noFilmsListSectionComponent, this.#filmsMainContainerComponent.element);
       render(this.#filmContainerComponent, this.#noFilmsListSectionComponent.element);
+    }
+  };
+
+  #onShowMoreButtonClick = () => {
+    this.#films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film) => render(new FilmCardView(film, this.#comments[film.id]), this.#filmContainerComponent.element));
+    this.#renderedFilmCards += FILMS_PORTION;
+    if (this.#renderedFilmCards >= this.#films.length) {
+      this.#showMoreButton.element.remove();
+      this.#showMoreButton.removeElement();
     }
   };
 
@@ -105,12 +105,11 @@ export default class FilmsPresenter {
         document.body.classList.add('hide-overflow');
         document.body.addEventListener('keydown', onEscKeyDown);
         this.#filmPopup = new FilmPopupView(this.#films[evt.target.dataset.filmId], this.#comments);
+        this.#filmPopup.setClosePopupButtonHandler(onClosePopupButtonClick);
         render(this.#filmPopup, this.#mainContainer);
-        const closePopupButtonElement = this.#filmPopup.element.querySelector('.film-details__close-btn');
-        closePopupButtonElement.addEventListener('click', onClosePopupButtonClick);
       }
     };
-    this.#showMoreButton.element.addEventListener('click', this.#onShowMoreButtonClick);
+    this.#showMoreButton.setShowMoreButtonClickHandler(this.#onShowMoreButtonClick);
     document.body.addEventListener('click', onFilmImgClick);
   };
 }
