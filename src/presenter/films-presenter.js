@@ -13,7 +13,7 @@ import NavigationView from '../view/navigation-view.js';
 import ProfileView from '../view/profile-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import FilmPopupView from '../view/film-popup-view.js';
-import {render} from '../render.js';
+import {render} from '../framework/render.js';
 
 export default class FilmsPresenter {
   #filmsMainContainerComponent = new FilmsContainerView();
