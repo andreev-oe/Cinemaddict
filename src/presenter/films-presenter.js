@@ -20,7 +20,7 @@ export default class FilmsPresenter {
   #filmsListSectionComponent = new FilmsListSectionView();
   #noFilmsListSectionComponent = new NoFilmsListSectionView();
   #filmContainerComponent = new FilmsListContainerView();
-  #loadMoreButton = new ShowMoreButtonView();
+  #showMoreButton = new ShowMoreButtonView();
   #renderedFilmCards = FILMS_PORTION;
   #headerContainer = null;
   #mainContainer = null;
@@ -28,11 +28,14 @@ export default class FilmsPresenter {
   #comments = null;
   #filmPopup = null;
 
-  init = (headerContainer, mainContainer, filmsModel) => {
+  constructor(headerContainer, mainContainer, filmsModel) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
     this.#films = [...filmsModel.films];
     this.#comments = [...filmsModel.comments];
+  }
+
+  init = () => {
     this.#renderPage();
     this.#renderPopup();
   };
@@ -41,8 +44,8 @@ export default class FilmsPresenter {
     this.#films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film) => render(new FilmCardView(film, this.#comments[film.id]), this.#filmContainerComponent.element));
     this.#renderedFilmCards += FILMS_PORTION;
     if (this.#renderedFilmCards >= this.#films.length) {
-      this.#loadMoreButton.element.remove();
-      this.#loadMoreButton.removeElement();
+      this.#showMoreButton.element.remove();
+      this.#showMoreButton.removeElement();
     }
   };
 
@@ -58,7 +61,7 @@ export default class FilmsPresenter {
         render(new FilmCardView(this.#films[i], this.#comments[i]), this.#filmContainerComponent.element);
       }
       if (this.#films.length > FILMS_PORTION) {
-        render(this.#loadMoreButton, this.#filmsMainContainerComponent.element);
+        render(this.#showMoreButton, this.#filmsMainContainerComponent.element);
         for (let i = 0; i < EXTRA_FILMS_CARDS_AMOUNT; i++) {
           this.filmsListExtraContainerComponent = new FilmsListContainerView();
           this.filmsListExtraSectionComponent = new FilmsListExtraSectionView();
@@ -107,7 +110,7 @@ export default class FilmsPresenter {
         closePopupButtonElement.addEventListener('click', onClosePopupButtonClick);
       }
     };
-    this.#loadMoreButton.element.addEventListener('click', this.#onShowMoreButtonClick);
+    this.#showMoreButton.element.addEventListener('click', this.#onShowMoreButtonClick);
     document.body.addEventListener('click', onFilmImgClick);
   };
 }
