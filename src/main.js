@@ -5,7 +5,7 @@ import './temp-data/temp.js';
 const headerElement = document.querySelector('.header');
 const mainElement = document.querySelector('.main');
 
-const filmsPresenter = new FilmsPresenter();
 const filmsModel = new FilmsModel();
+const filmsPresenter = new FilmsPresenter(headerElement, mainElement, filmsModel);
 
-filmsPresenter.init(headerElement, mainElement, filmsModel);
+filmsPresenter.init();

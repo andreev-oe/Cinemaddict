@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createCommentElement = (commentsId, commentsText) => {
   const divElement = document.createElement('div');
@@ -153,12 +153,12 @@ const createFilmPopupElement = (film, commentsText) => {
 </section>`;
 };
 
-export default class FilmPopupView {
-  #element = null;
+export default class FilmPopupView extends AbstractView {
   #film = null;
   #commentsText = null;
 
   constructor(film, commentsText) {
+    super();
     this.#film = film;
     this.#commentsText = commentsText;
   }
@@ -167,14 +167,13 @@ export default class FilmPopupView {
     return createFilmPopupElement(this.#film, this.#commentsText);
   }
 
-  get element () {
-    if(!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
+  setClosePopupButtonHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#onClosePopupButtonHandler);
+  };
 
-  removeElement () {
-    this.#element = null;
-  }
+  #onClosePopupButtonHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+  };
 }

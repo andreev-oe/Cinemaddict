@@ -1,5 +1,4 @@
 import {
-  EMOTIONS,
   TEMP_DESCRIPTION,
   TEMP_TITLES,
   TEMP_POSTERS,
@@ -14,7 +13,8 @@ import {
   TEMP_DURATION,
   TEMP_BOOLEAN,
   TEMP_MAX_COMMENTS
-} from '../constants.js';
+} from './constants.js';
+import {EMOTIONS} from '../constants.js';
 import {
   getRandomInteger,
   getRandomFloat,
