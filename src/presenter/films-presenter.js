@@ -33,6 +33,7 @@ export default class FilmsPresenter {
   #comments = null;
   #filmPopup = null;
   #filmSortView = null;
+  #navigationView = null;
 
   constructor(headerContainer, mainContainer, filmsModel) {
     this.#headerContainer = headerContainer;
@@ -40,6 +41,7 @@ export default class FilmsPresenter {
     this.#films = [...filmsModel.films];
     this.#comments = [...filmsModel.comments];
     this.#filmSortView = new FilmsSortView(this.#films);
+    this.#navigationView = new NavigationView(this.#films);
   }
 
   init = () => {
@@ -50,7 +52,7 @@ export default class FilmsPresenter {
   #renderPage = () => {
     this.#filmSortView.setSortButtonsHandlers(sortByDefault, sortByDay, sortByRating);
     render(new ProfileView(), this.#headerContainer);
-    render(new NavigationView(), this.#mainContainer);
+    render(this.#navigationView, this.#mainContainer);
     render(this.#filmSortView, this.#mainContainer);
     render(this.#filmsMainContainerComponent, this.#mainContainer);
     if (this.#films.length !== 0) {
