@@ -14,6 +14,11 @@ import ProfileView from '../view/profile-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import FilmPopupView from '../view/film-popup-view.js';
 import {render} from '../framework/render.js';
+import {
+  sortByDefault,
+  sortByDay,
+  sortByRating,
+} from '../utils/filters.js';
 
 export default class FilmsPresenter {
   #filmsMainContainerComponent = new FilmsContainerView();
@@ -27,12 +32,14 @@ export default class FilmsPresenter {
   #films = null;
   #comments = null;
   #filmPopup = null;
+  #filmSortView = null;
 
   constructor(headerContainer, mainContainer, filmsModel) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
     this.#films = [...filmsModel.films];
     this.#comments = [...filmsModel.comments];
+    this.#filmSortView = new FilmsSortView(this.#films);
   }
 
   init = () => {
@@ -41,9 +48,10 @@ export default class FilmsPresenter {
   };
 
   #renderPage = () => {
+    this.#filmSortView.setSortButtonsHandlers(sortByDefault, sortByDay, sortByRating);
     render(new ProfileView(), this.#headerContainer);
     render(new NavigationView(), this.#mainContainer);
-    render(new FilmsSortView(), this.#mainContainer);
+    render(this.#filmSortView, this.#mainContainer);
     render(this.#filmsMainContainerComponent, this.#mainContainer);
     if (this.#films.length !== 0) {
       render(this.#filmsListSectionComponent, this.#filmsMainContainerComponent.element);
