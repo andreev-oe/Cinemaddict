@@ -102,7 +102,7 @@ export default class FilmsPresenter {
   };
 
   #onShowMoreButtonClick = () => {
-    this.#films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film, index) => this.#renderFilmCard(index, this.#filmContainerComponent));
+    this.#films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film, index) => this.#renderFilmCard(index + this.#renderedFilmCards, this.#filmContainerComponent));
     this.#renderedFilmCards += FILMS_PORTION;
     if (this.#renderedFilmCards >= this.#films.length) {
       this.#showMoreButtonPresenter.remove();
