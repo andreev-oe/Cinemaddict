@@ -3,7 +3,8 @@ import {
   FILMS_PORTION
 } from '../constants.js';
 import PopupPresenter from './popup-presenter.js';
-import FilmCardView from '../view/film-card-view.js';
+import FilmCardPresenter from './film-card-presenter.js';
+import ShowMoreButtonPresenter from './show-more-button-presenter.js';
 import FilmsListContainerView from '../view/films-list-container-view.js';
 import FilmsListSectionView from '../view/films-list-section-view.js';
 import NoFilmsListSectionView from '../view/no-films-list-section-view.js';
@@ -12,7 +13,6 @@ import FilmsContainerView from '../view/films-container-view.js';
 import FilmsSortView from '../view/films-sort-view.js';
 import NavigationView from '../view/navigation-view.js';
 import ProfileView from '../view/profile-view.js';
-import ShowMoreButtonView from '../view/show-more-button-view.js';
 import FooterStatisticsView from '../view/footer-statistics-view.js';
 import {render} from '../framework/render.js';
 import {
@@ -26,7 +26,6 @@ export default class FilmsPresenter {
   #filmsListSectionComponent = new FilmsListSectionView();
   #noFilmsListSectionComponent = new NoFilmsListSectionView();
   #filmContainerComponent = new FilmsListContainerView();
-  #showMoreButton = new ShowMoreButtonView();
   #renderedFilmCards = FILMS_PORTION;
   #headerContainer = null;
   #mainContainer = null;
@@ -39,6 +38,7 @@ export default class FilmsPresenter {
   #navigationView = null;
   #filmsModel = null;
   #popupPresenter = null;
+  #showMoreButtonPresenter = null;
 
   constructor(headerContainer, mainContainer, footerContainer, filmsModel) {
     this.#headerContainer = headerContainer;
@@ -52,6 +52,7 @@ export default class FilmsPresenter {
     this.#footerStatisticsView = new FooterStatisticsView(this.#films);
     this.#profileView = new ProfileView();
     this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#mainContainer);
+    this.#showMoreButtonPresenter = new ShowMoreButtonPresenter();
   }
 
   init = () => {
@@ -71,7 +72,7 @@ export default class FilmsPresenter {
       this.#renderFilmCards();
       document.body.addEventListener('click', this.#popupPresenter.onFilmImgClick);
       if (this.#films.length > FILMS_PORTION) {
-        this.#renderShowMoreButton();
+        this.#showMoreButtonPresenter.renderShowMoreButton(this.#filmsMainContainerComponent, this.#onShowMoreButtonClick);
         this.#renderExtraFilms();
       }
     } else {
@@ -80,18 +81,11 @@ export default class FilmsPresenter {
     }
   };
 
-  #renderShowMoreButton = () => {
-    render(this.#showMoreButton, this.#filmsMainContainerComponent.element);
-    this.#showMoreButton.setShowMoreButtonClickHandler(this.#onShowMoreButtonClick);
-  };
-
-  #renderFilmCard = (i) => {
-    render(new FilmCardView(this.#films[i], this.#comments[i]), this.#filmContainerComponent.element);
-  };
+  #renderFilmCard = (i, container) => new FilmCardPresenter(this.#films[i], this.#comments[i], container.element).renderFilmCard();
 
   #renderFilmCards = () => {
     for (let i = 0; i < Math.min(this.#films.length, FILMS_PORTION) ; i++) {
-      this.#renderFilmCard(i);
+      this.#renderFilmCard(i, this.#filmContainerComponent);
     }
   };
 
@@ -102,17 +96,16 @@ export default class FilmsPresenter {
       render(this.filmsListExtraSectionComponent, this.#filmsMainContainerComponent.element);
       render(this.filmsListExtraContainerComponent, this.filmsListExtraSectionComponent.element);
       for (let j = 0; j < EXTRA_FILMS_CARDS_AMOUNT; j++) {
-        render(new FilmCardView(this.#films[i], this.#comments[i]), this.filmsListExtraContainerComponent.element);
+        this.#renderFilmCard(j, this.filmsListExtraContainerComponent);
       }
     }
   };
 
   #onShowMoreButtonClick = () => {
-    this.#films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film) => render(new FilmCardView(film, this.#comments[film.id]), this.#filmContainerComponent.element));
+    this.#films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film, index) => this.#renderFilmCard(index, this.#filmContainerComponent));
     this.#renderedFilmCards += FILMS_PORTION;
     if (this.#renderedFilmCards >= this.#films.length) {
-      this.#showMoreButton.element.remove();
-      this.#showMoreButton.removeElement();
+      this.#showMoreButtonPresenter.remove();
     }
   };
 }
