@@ -1,4 +1,4 @@
-import {render} from '../framework/render.js';
+import {render, remove} from '../framework/render.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 
 export default class ShowMoreButtonPresenter {
@@ -10,11 +10,10 @@ export default class ShowMoreButtonPresenter {
 
   renderShowMoreButton = (container, clickHandler) => {
     render(this.#showMoreButton, container.element);
-    this.#showMoreButton.setShowMoreButtonClickHandler(clickHandler);
+    this.#showMoreButton.setOnShowMoreButtonClick(clickHandler);
   };
 
-  remove = () => {
-    this.#showMoreButton.element.remove();
-    this.#showMoreButton.removeElement();
+  destroy = () => {
+    remove(this.#showMoreButton);
   };
 }

@@ -167,13 +167,49 @@ export default class FilmPopupView extends AbstractView {
     return createFilmPopupElement(this.#film, this.#commentsText);
   }
 
-  setClosePopupButtonHandler = (callback) => {
+  setOnClosePopupButtonClick = (callback) => {
     this._callback.click = callback;
-    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#onClosePopupButtonHandler);
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#onClosePopupButtonClick);
   };
 
-  #onClosePopupButtonHandler = (evt) => {
+  #onClosePopupButtonClick = (evt) => {
     evt.preventDefault();
     this._callback.click();
+  };
+
+  setOnAddToFavoritesButtonClick = (callback, eventListener) => {
+    this._callback.render = callback;
+    this._callback.onFavoriteClick = eventListener;
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#onAddToFavoritesButtonClick);
+  };
+
+  #onAddToFavoritesButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.onFavoriteClick(this.#film);
+    this._callback.render(this.#film);
+  };
+
+  setOnAddToWatchedButtonClick = (callback, eventListener) => {
+    this._callback.render = callback;
+    this._callback.onWatchedClick = eventListener;
+    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#onAddToWatchedButtonClick);
+  };
+
+  #onAddToWatchedButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.onWatchedClick(this.#film);
+    this._callback.render(this.#film);
+  };
+
+  setOnAddToWatchButtonClick = (callback, eventListener) => {
+    this._callback.render = callback;
+    this._callback.onWatchClick = eventListener;
+    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#onAddToWatchButtonClick);
+  };
+
+  #onAddToWatchButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.onWatchClick(this.#film);
+    this._callback.render(this.#film);
   };
 }

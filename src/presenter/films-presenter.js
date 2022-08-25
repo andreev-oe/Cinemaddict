@@ -20,6 +20,7 @@ import {
   sortByDay,
   sortByRating,
 } from '../utils/filters.js';
+import {updateFilm} from '../utils/utilities.js';
 
 export default class FilmsPresenter {
   #filmsMainContainerComponent = new FilmsContainerView();
@@ -39,6 +40,7 @@ export default class FilmsPresenter {
   #filmsModel = null;
   #popupPresenter = null;
   #showMoreButtonPresenter = null;
+  #filmPresenter = null;
 
   constructor(headerContainer, mainContainer, footerContainer, filmsModel) {
     this.#headerContainer = headerContainer;
@@ -53,6 +55,7 @@ export default class FilmsPresenter {
     this.#profileView = new ProfileView();
     this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#mainContainer);
     this.#showMoreButtonPresenter = new ShowMoreButtonPresenter();
+    this.#filmPresenter = new Map();
   }
 
   init = () => {
@@ -81,11 +84,15 @@ export default class FilmsPresenter {
     }
   };
 
-  #renderFilmCard = (i, container) => new FilmCardPresenter(this.#films[i], this.#comments[i], container.element).renderFilmCard();
+  #renderFilmCard = (i, container = this.#filmContainerComponent) => {
+    const filmCard = new FilmCardPresenter(this.#films[i], this.#comments[i], container.element);
+    filmCard.renderFilmCard(this.#updateFilm);
+    this.#filmPresenter.set(this.#films[i].id, filmCard);
+  };
 
   #renderFilmCards = () => {
     for (let i = 0; i < Math.min(this.#films.length, FILMS_PORTION) ; i++) {
-      this.#renderFilmCard(i, this.#filmContainerComponent);
+      this.#renderFilmCard(i);
     }
   };
 
@@ -102,10 +109,15 @@ export default class FilmsPresenter {
   };
 
   #onShowMoreButtonClick = () => {
-    this.#films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film, index) => this.#renderFilmCard(index + this.#renderedFilmCards, this.#filmContainerComponent));
+    this.#films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film, index) => this.#renderFilmCard(index + this.#renderedFilmCards));
     this.#renderedFilmCards += FILMS_PORTION;
     if (this.#renderedFilmCards >= this.#films.length) {
-      this.#showMoreButtonPresenter.remove();
+      this.#showMoreButtonPresenter.destroy();
     }
+  };
+
+  #updateFilm = (filmToUpdate) => {
+    this.#films = updateFilm(this.#films, filmToUpdate);
+    this.#filmPresenter.get(filmToUpdate.id).renderFilmCard(this.#updateFilm, filmToUpdate);
   };
 }

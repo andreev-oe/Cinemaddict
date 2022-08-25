@@ -14,6 +14,18 @@ const getRandomFloat = (scaleLow, scaleHigh, digitsAfterDecimalPoint = 0) => {
   return Number((Math.random() * (scaleHigh - scaleLow) + scaleLow).toFixed(digitsAfterDecimalPoint));
 };
 
+const updateFilm = (films, filmToUpdate) => {
+  const index = films.findIndex((film) => film.id === filmToUpdate.id);
+  if (index === -1) {
+    return films;
+  }
+  return [
+    ...films.slice(0, index),
+    filmToUpdate,
+    ...films.slice(index + 1),
+  ];
+};
+
 const translitLatinToCyrillic = (word) => {
   const translitMap = {
     'a': 'а',
@@ -104,5 +116,6 @@ const translitLatinToCyrillic = (word) => {
 export {
   getRandomInteger,
   getRandomFloat,
+  updateFilm,
   translitLatinToCyrillic,
 };

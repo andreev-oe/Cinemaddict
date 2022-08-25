@@ -4,7 +4,7 @@ const createFilmCardElement = (film) => {
   const {title, description, release, poster, genre, runtime, totalRating} = film.filmInfo;
   const {favorite, alreadyWatched, watchlist} = film.userDetails;
   const {length} = film.comments;
-  return `<article class="film-card">
+  return `<article class="film-card" data-film-id="${film.id}">
           <a class="film-card__link">
             <h3 class="film-card__title">${title}</h3>
             <p class="film-card__rating">${totalRating}</p>
@@ -36,4 +36,40 @@ export default class FilmCardView extends AbstractView {
   get template () {
     return createFilmCardElement(this.#film);
   }
+
+  setOnAddToFavoritesButtonClick = (callback, eventListener) => {
+    this._callback.render = callback;
+    this._callback.onFavoriteClick = eventListener;
+    this.element.querySelector('.film-card__controls-item--favorite').addEventListener('click', this.#onAddToFavoritesButtonClick);
+  };
+
+  #onAddToFavoritesButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.onFavoriteClick(this.#film);
+    this._callback.render(this.#film);
+  };
+
+  setOnAddToWatchedButtonClick = (callback, eventListener) => {
+    this._callback.render = callback;
+    this._callback.onWatchedClick = eventListener;
+    this.element.querySelector('.film-card__controls-item--mark-as-watched').addEventListener('click', this.#onAddToWatchedButtonClick);
+  };
+
+  #onAddToWatchedButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.onWatchedClick(this.#film);
+    this._callback.render(this.#film);
+  };
+
+  setOnAddToWatchButtonClick = (callback, eventListener) => {
+    this._callback.render = callback;
+    this._callback.onWatchClick = eventListener;
+    this.element.querySelector('.film-card__controls-item--add-to-watchlist').addEventListener('click', this.#onAddToWatchButtonClick);
+  };
+
+  #onAddToWatchButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.onWatchClick(this.#film);
+    this._callback.render(this.#film);
+  };
 }

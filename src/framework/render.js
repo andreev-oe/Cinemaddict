@@ -56,7 +56,6 @@ const replace = (newComponent, oldComponent) => {
   if (parent === null) {
     throw new Error('Parent element doesn\'t exist');
   }
-
   parent.replaceChild(newElement, oldElement);
 };
 
