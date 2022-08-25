@@ -60,6 +60,17 @@ export default class FilmsPresenter {
 
   init = () => {
     this.#renderPage();
+    document.body.addEventListener('click', this.#onControlButtonClick);
+  };
+
+  #onControlButtonClick = (evt) =>{
+    if (evt.target.dataset.button) {
+      const i = evt.target.parentNode.dataset.filmId;
+      this.#updateFilm(this.#films[i]);
+      if (!this.#popupPresenter.popupClosedState) {
+        this.#popupPresenter.updatePopup(this.#films[i]);
+      }
+    }
   };
 
   #renderPage = () => {
@@ -86,7 +97,7 @@ export default class FilmsPresenter {
 
   #renderFilmCard = (i, container = this.#filmContainerComponent) => {
     const filmCard = new FilmCardPresenter(this.#films[i], this.#comments[i], container.element);
-    filmCard.renderFilmCard(this.#updateFilm);
+    filmCard.renderFilmCard(this.#films[i]);
     this.#filmPresenter.set(this.#films[i].id, filmCard);
   };
 
@@ -103,7 +114,7 @@ export default class FilmsPresenter {
       render(this.filmsListExtraSectionComponent, this.#filmsMainContainerComponent.element);
       render(this.filmsListExtraContainerComponent, this.filmsListExtraSectionComponent.element);
       for (let j = 0; j < EXTRA_FILMS_CARDS_AMOUNT; j++) {
-        this.#renderFilmCard(j, this.filmsListExtraContainerComponent);
+        this.#renderFilmCard(this.#films.length - EXTRA_FILMS_CARDS_AMOUNT, this.filmsListExtraContainerComponent);
       }
     }
   };
@@ -118,6 +129,6 @@ export default class FilmsPresenter {
 
   #updateFilm = (filmToUpdate) => {
     this.#films = updateFilm(this.#films, filmToUpdate);
-    this.#filmPresenter.get(filmToUpdate.id).renderFilmCard(this.#updateFilm, filmToUpdate);
+    this.#filmPresenter.get(filmToUpdate.id).renderFilmCard(filmToUpdate);
   };
 }

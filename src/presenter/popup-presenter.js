@@ -1,5 +1,8 @@
 import FilmPopupView from '../view/film-popup-view.js';
-import {remove, render, replace} from '../framework/render.js';
+import {
+  remove,
+  render
+} from '../framework/render.js';
 import {updateFilm} from '../utils/utilities.js';
 
 export default class PopupPresenter {
@@ -9,6 +12,7 @@ export default class PopupPresenter {
   #mainContainer = null;
   #popupPresenter = null;
   #evt = null;
+  #popupClosed = true;
 
   constructor(filmsModel, mainContainer) {
     this.#films = [...filmsModel.films];
@@ -23,58 +27,57 @@ export default class PopupPresenter {
       evt.preventDefault();
       document.body.classList.remove('hide-overflow');
       document.body.removeEventListener('keydown', this.#onEscKeyDown);
-      this.#filmPopup.element.remove();
-      this.#filmPopup.removeElement();
       this.destroy();
+      this.#popupClosed = true;
     }
   };
 
   #onClosePopupButtonClick = () => {
     document.body.classList.remove('hide-overflow');
     document.body.removeEventListener('keydown', this.#onEscKeyDown);
-    this.#filmPopup.element.remove();
-    this.#filmPopup.removeElement();
     this.destroy();
+    this.#popupClosed = true;
   };
 
   onFilmImgClick = (evt) => {
     if (evt.target.nodeName === 'IMG' && evt.target.dataset.filmId){
       if (this.#filmPopup) {
-        this.#filmPopup.element.remove();
-        this.#filmPopup.removeElement();
+        this.destroy();
       }
       this.renderPopup(evt);
+      this.#popupClosed = false;
     }
   };
 
-  #updatePopup = (popupToUpdate) => {
-    this.#films = updateFilm(this.#films, popupToUpdate);
-    this.renderPopup(this.#evt);
+  get popupClosedState () {
+    return this.#popupClosed;
+  }
+
+  updatePopup = (popupToUpdate) => {
+    if (this.#filmPopup !== null) {
+      this.#films = updateFilm(this.#films, popupToUpdate);
+      this.renderPopup(this.#evt);
+    }
   };
 
   renderPopup = (evt) => {
     this.#evt = evt;
     const prevPopupView = this.#filmPopup;
     this.#filmPopup = new FilmPopupView(this.#films[evt.target.dataset.filmId], this.#comments);
-    document.body.classList.add('hide-overflow');
+    this.#filmPopup.setOnAddToFavoritesButtonClick(this.#onAddToFavoritesButtonClick);
+    this.#filmPopup.setOnAddToWatchButtonClick(this.#onAddToWatchedButtonClick);
+    this.#filmPopup.setOnAddToWatchedButtonClick(this.#onAddToWatchButtonClick);
     document.body.addEventListener('keydown', this.#onEscKeyDown);
-    this.#filmPopup = new FilmPopupView(this.#films[evt.target.dataset.filmId], this.#comments);
     this.#filmPopup.setOnClosePopupButtonClick(this.#onClosePopupButtonClick);
     if (prevPopupView === null) {
+      document.body.classList.add('hide-overflow');
       render(this.#filmPopup, this.#mainContainer);
-      this.#filmPopup.setOnAddToFavoritesButtonClick(this.#updatePopup, this.#onAddToFavoritesButtonClick);
-      this.#filmPopup.setOnAddToWatchButtonClick(this.#updatePopup, this.#onAddToWatchedButtonClick);
-      this.#filmPopup.setOnAddToWatchedButtonClick(this.#updatePopup, this.#onAddToWatchButtonClick);
       return;
     }
-    if (this.#mainContainer.contains(prevPopupView.element)) {
-      replace(this.#filmPopup, prevPopupView);
-      this.#filmPopup.setOnAddToFavoritesButtonClick(this.#updatePopup, this.#onAddToFavoritesButtonClick);
-      this.#filmPopup.setOnAddToWatchButtonClick(this.#updatePopup, this.#onAddToWatchedButtonClick);
-      this.#filmPopup.setOnAddToWatchedButtonClick(this.#updatePopup, this.#onAddToWatchButtonClick);
+    if (prevPopupView.element) {
+      document.body.classList.add('hide-overflow');
+      render(this.#filmPopup, this.#mainContainer);
     }
-    prevPopupView.element.remove();
-    prevPopupView.removeElement();
     remove(prevPopupView);
   };
 

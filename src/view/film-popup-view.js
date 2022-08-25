@@ -103,10 +103,10 @@ const createFilmPopupElement = (film, commentsText) => {
         </div>
       </div>
 
-      <section class="film-details__controls">
-        <button type="button" class="film-details__control-button film-details__control-button--watchlist ${watchlist === true ? 'film-details__control-button--active' : ''}" id="watchlist" name="watchlist">Add to watchlist</button>
-        <button type="button" class="film-details__control-button film-details__control-button--watched ${alreadyWatched === true ? 'film-details__control-button--active' : ''}" id="watched" name="watched">Already watched</button>
-        <button type="button" class="film-details__control-button film-details__control-button--favorite ${favorite === true ? 'film-details__control-button--active' : ''}" id="favorite" name="favorite">Add to favorites</button>
+      <section class="film-details__controls" data-film-id="${film.id}">
+        <button type="button" data-button="watchlist" class="film-details__control-button film-details__control-button--watchlist ${watchlist === true ? 'film-details__control-button--active' : ''}" id="watchlist" name="watchlist">Add to watchlist</button>
+        <button type="button" data-button="watched" class="film-details__control-button film-details__control-button--watched ${alreadyWatched === true ? 'film-details__control-button--active' : ''}" id="watched" name="watched">Already watched</button>
+        <button type="button" data-button="favourite" class="film-details__control-button film-details__control-button--favorite ${favorite === true ? 'film-details__control-button--active' : ''}" id="favorite" name="favorite">Add to favorites</button>
       </section>
     </div>
 
@@ -177,8 +177,7 @@ export default class FilmPopupView extends AbstractView {
     this._callback.click();
   };
 
-  setOnAddToFavoritesButtonClick = (callback, eventListener) => {
-    this._callback.render = callback;
+  setOnAddToFavoritesButtonClick = (eventListener) => {
     this._callback.onFavoriteClick = eventListener;
     this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#onAddToFavoritesButtonClick);
   };
@@ -186,11 +185,9 @@ export default class FilmPopupView extends AbstractView {
   #onAddToFavoritesButtonClick = (evt) => {
     evt.preventDefault();
     this._callback.onFavoriteClick(this.#film);
-    this._callback.render(this.#film);
   };
 
-  setOnAddToWatchedButtonClick = (callback, eventListener) => {
-    this._callback.render = callback;
+  setOnAddToWatchedButtonClick = (eventListener) => {
     this._callback.onWatchedClick = eventListener;
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#onAddToWatchedButtonClick);
   };
@@ -198,11 +195,9 @@ export default class FilmPopupView extends AbstractView {
   #onAddToWatchedButtonClick = (evt) => {
     evt.preventDefault();
     this._callback.onWatchedClick(this.#film);
-    this._callback.render(this.#film);
   };
 
-  setOnAddToWatchButtonClick = (callback, eventListener) => {
-    this._callback.render = callback;
+  setOnAddToWatchButtonClick = (eventListener) => {
     this._callback.onWatchClick = eventListener;
     this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#onAddToWatchButtonClick);
   };
@@ -210,6 +205,5 @@ export default class FilmPopupView extends AbstractView {
   #onAddToWatchButtonClick = (evt) => {
     evt.preventDefault();
     this._callback.onWatchClick(this.#film);
-    this._callback.render(this.#film);
   };
 }
