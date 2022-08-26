@@ -74,21 +74,25 @@ export default class FilmsPresenter {
   };
 
   #renderPage = () => {
-    this.#filmSortView.setSortButtonsHandlers(sortByDefault, sortByDay, sortByRating);
+    this.#filmSortView.setSortButtonsHandlers(sortByDefault, sortByDay, sortByRating, this.renderContent);
     render(this.#profileView, this.#headerContainer);
     render(this.#navigationView, this.#mainContainer);
     render(this.#filmSortView, this.#mainContainer);
     render(this.#footerStatisticsView, this.#footerContainer);
+    this.renderContent();
+    if (this.#films.length > FILMS_PORTION) {
+      this.#showMoreButtonPresenter.renderShowMoreButton(this.#filmsMainContainerComponent, this.#onShowMoreButtonClick);
+      this.#renderExtraFilms();
+    }
+  };
+
+  renderContent = (films = this.#films) => {
     render(this.#filmsMainContainerComponent, this.#mainContainer);
-    if (this.#films.length !== 0) {
+    if (films.length !== 0) {
       render(this.#filmsListSectionComponent, this.#filmsMainContainerComponent.element);
       render(this.#filmContainerComponent, this.#filmsListSectionComponent.element);
       this.#renderFilmCards();
       document.body.addEventListener('click', this.#popupPresenter.onFilmImgClick);
-      if (this.#films.length > FILMS_PORTION) {
-        this.#showMoreButtonPresenter.renderShowMoreButton(this.#filmsMainContainerComponent, this.#onShowMoreButtonClick);
-        this.#renderExtraFilms();
-      }
     } else {
       render(this.#noFilmsListSectionComponent, this.#filmsMainContainerComponent.element);
       render(this.#filmContainerComponent, this.#noFilmsListSectionComponent.element);
