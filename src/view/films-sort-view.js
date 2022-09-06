@@ -13,6 +13,7 @@ export default class FilmsSortView extends AbstractView {
   #ratingSortButton = null;
   #sortButtons = null;
   #activeButtonClass = 'sort__button--active';
+  #shownFilmCards = [];
 
   constructor(films) {
     super();
@@ -27,6 +28,11 @@ export default class FilmsSortView extends AbstractView {
     return createSortElement();
   }
 
+  get showedFilms () {
+    return this.#shownFilmCards;
+
+  }
+
   #removeActiveButtonClass = () => {
     for (const sortButton of this.#sortButtons) {
       if (sortButton.children[0].classList.contains('sort__button--active')) {
@@ -36,11 +42,12 @@ export default class FilmsSortView extends AbstractView {
     }
   };
 
-  setSortButtonsHandlers = (defaultSort, daySort, ratingSort, init) => {
+  setSortButtonsHandlers = (defaultSort, daySort, ratingSort, init, shownFilmCards) => {
     this._callback.defaultSort = defaultSort;
     this._callback.daySort = daySort;
     this._callback.ratingSort = ratingSort;
     this._callback.filmsInit = init;
+    this.#shownFilmCards = shownFilmCards;
     this.#defaultSortButton.addEventListener('click', this.#onDefaultSortButtonClick);
     this.#dateSortButton.addEventListener('click', this.#onDaySortButtonClick);
     this.#ratingSortButton.addEventListener('click', this.#onRatingSortButtonClick);
@@ -51,6 +58,8 @@ export default class FilmsSortView extends AbstractView {
     if (this.#defaultSortButton.classList.contains(this.#activeButtonClass)) {
       return;
     }
+    this.#shownFilmCards.forEach((filmCard) => filmCard.destroy());
+    this.#shownFilmCards = [];
     this.#removeActiveButtonClass();
     const filteredFilms = this._callback.defaultSort(this.#films, this.#defaultSortButton, this.#activeButtonClass);
     this._callback.filmsInit(filteredFilms);
@@ -61,6 +70,8 @@ export default class FilmsSortView extends AbstractView {
     if (this.#dateSortButton.classList.contains(this.#activeButtonClass)) {
       return;
     }
+    this.#shownFilmCards.forEach((filmCard) => filmCard.destroy());
+    this.#shownFilmCards = [];
     this.#removeActiveButtonClass();
     const filteredFilms = this._callback.daySort(this.#films, this.#dateSortButton, this.#activeButtonClass);
     this._callback.filmsInit(filteredFilms);
@@ -71,6 +82,8 @@ export default class FilmsSortView extends AbstractView {
     if (this.#ratingSortButton.classList.contains(this.#activeButtonClass)) {
       return;
     }
+    this.#shownFilmCards.forEach((filmCard) => filmCard.destroy());
+    this.#shownFilmCards = [];
     this.#removeActiveButtonClass();
     const filteredFilms = this._callback.ratingSort(this.#films, this.#ratingSortButton, this.#activeButtonClass);
     this._callback.filmsInit(filteredFilms);
