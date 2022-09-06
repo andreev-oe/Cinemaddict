@@ -8,9 +8,9 @@ export default class ShowMoreButtonPresenter {
     this.#showMoreButton = new ShowMoreButtonView();
   }
 
-  renderShowMoreButton = (container, clickHandler) => {
+  renderShowMoreButton = (container, clickHandler, films) => {
     render(this.#showMoreButton, container.element);
-    this.#showMoreButton.setOnShowMoreButtonClick(clickHandler);
+    this.#showMoreButton.setOnShowMoreButtonClick(clickHandler, films);
   };
 
   destroy = () => {

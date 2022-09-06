@@ -96,7 +96,7 @@ export default class FilmsPresenter {
       render(this.#filmContainerComponent, this.#filmsListSectionComponent.element);
       this.#renderFilmCards(films);
       if (this.#films.length > FILMS_PORTION) {
-        this.#showMoreButtonPresenter.renderShowMoreButton(this.#filmsMainContainerComponent, this.#onShowMoreButtonClick);
+        this.#showMoreButtonPresenter.renderShowMoreButton(this.#filmsMainContainerComponent, this.#onShowMoreButtonClick, films);
         this.#renderExtraFilms();
       }
       document.body.addEventListener('click', this.#popupPresenter.onFilmImgClick);
@@ -132,10 +132,10 @@ export default class FilmsPresenter {
     }
   };
 
-  #onShowMoreButtonClick = () => {
-    this.#films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film, index) => this.#renderFilmCard(index + this.#renderedFilmCards));
+  #onShowMoreButtonClick = (films = this.#films) => {
+    films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film, index) => this.#renderFilmCard(index + this.#renderedFilmCards, films));
     this.#renderedFilmCards += FILMS_PORTION;
-    if (this.#renderedFilmCards >= this.#films.length) {
+    if (this.#renderedFilmCards >= films.length) {
       this.#showMoreButtonPresenter.destroy();
     }
   };
