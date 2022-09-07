@@ -1,6 +1,10 @@
-const sortByDefault = (model) => model;
+const sortByDefault = (model, element, cssClass) => {
+  element.classList.add(cssClass);
+  return model;
+};
 
-const sortByDay = (model) => {
+const sortByDay = (model, element, cssClass) => {
+  element.classList.add(cssClass);
   const clonedModel = JSON.parse(JSON.stringify(model));
   clonedModel.sort((a, b) => {
     if (a.filmInfo.release.date > b.filmInfo.release.date) {
@@ -16,7 +20,8 @@ const sortByDay = (model) => {
   return clonedModel;
 };
 
-const sortByRating = (model) => {
+const sortByRating = (model, element, cssClass) => {
+  element.classList.add(cssClass);
   const clonedModel = JSON.parse(JSON.stringify(model));
   clonedModel.sort((a, b) => {
     if (a.filmInfo.totalRating > b.filmInfo.totalRating) {
