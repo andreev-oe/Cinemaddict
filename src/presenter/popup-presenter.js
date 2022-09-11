@@ -67,6 +67,7 @@ export default class PopupPresenter {
     this.#filmPopup.setOnAddToFavoritesButtonClick(this.#onAddToFavoritesButtonClick);
     this.#filmPopup.setOnAddToWatchButtonClick(this.#onAddToWatchedButtonClick);
     this.#filmPopup.setOnAddToWatchedButtonClick(this.#onAddToWatchButtonClick);
+    this.#filmPopup.setOnEmojiClick(this.#onEmojiClick);
     document.body.addEventListener('keydown', this.#onEscKeyDown);
     this.#filmPopup.setOnClosePopupButtonClick(this.#onClosePopupButtonClick);
     if (prevPopupView === null) {
@@ -91,6 +92,15 @@ export default class PopupPresenter {
 
   #onAddToWatchButtonClick = (film) => {
     film.userDetails.watchlist = !film.userDetails.watchlist;
+  };
+
+  #onEmojiClick = (evt, emojiInputs, setNewCommentEmoji) => {
+    if (evt.target.dataset.emojiName) {
+      for (const input of emojiInputs) {
+        input.checked = input.id === evt.target.dataset.emojiName;
+      }
+      setNewCommentEmoji();
+    }
   };
 
   destroy = () => remove(this.#filmPopup);
