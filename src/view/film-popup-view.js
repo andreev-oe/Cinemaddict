@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 const createCommentElement = (commentsId, commentsText) => {
   const divElement = document.createElement('div');
@@ -128,22 +128,22 @@ const createFilmPopupElement = (film, commentsText) => {
           <div class="film-details__emoji-list">
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
             <label class="film-details__emoji-label" for="emoji-smile">
-              <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/smile.png" width="30" height="30" data-emoji-name = "emoji-smile" alt="smile">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
             <label class="film-details__emoji-label" for="emoji-sleeping">
-              <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/sleeping.png" width="30" height="30" data-emoji-name = "emoji-sleeping" alt="sleeping">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
             <label class="film-details__emoji-label" for="emoji-puke">
-              <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/puke.png" width="30" height="30" data-emoji-name = "emoji-puke" alt="puke">
             </label>
 
             <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
             <label class="film-details__emoji-label" for="emoji-angry">
-              <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
+              <img src="./images/emoji/angry.png" width="30" height="30" data-emoji-name = "emoji-angry" alt="angry">
             </label>
           </div>
         </form>
@@ -153,18 +153,16 @@ const createFilmPopupElement = (film, commentsText) => {
 </section>`;
 };
 
-export default class FilmPopupView extends AbstractView {
-  #film = null;
-  #commentsText = null;
-
+export default class FilmPopupView extends AbstractStatefulView {
   constructor(film, commentsText) {
     super();
-    this.#film = film;
-    this.#commentsText = commentsText;
+    this._state.film = FilmPopupView.parseFilmDataToState(film);
+    this._state.commentsText = FilmPopupView.parseFilmCommentsToState(commentsText);
+    this.#setInnerHandlers();
   }
 
   get template () {
-    return createFilmPopupElement(this.#film, this.#commentsText);
+    return createFilmPopupElement(this._state.film, this._state.commentsText);
   }
 
   setOnClosePopupButtonClick = (callback) => {
@@ -184,7 +182,7 @@ export default class FilmPopupView extends AbstractView {
 
   #onAddToFavoritesButtonClick = (evt) => {
     evt.preventDefault();
-    this._callback.onFavoriteClick(this.#film);
+    this._callback.onFavoriteClick(this._state.film);
   };
 
   setOnAddToWatchedButtonClick = (eventListener) => {
@@ -194,7 +192,7 @@ export default class FilmPopupView extends AbstractView {
 
   #onAddToWatchedButtonClick = (evt) => {
     evt.preventDefault();
-    this._callback.onWatchedClick(this.#film);
+    this._callback.onWatchedClick(this._state.film);
   };
 
   setOnAddToWatchButtonClick = (eventListener) => {
@@ -204,6 +202,35 @@ export default class FilmPopupView extends AbstractView {
 
   #onAddToWatchButtonClick = (evt) => {
     evt.preventDefault();
-    this._callback.onWatchClick(this.#film);
+    this._callback.onWatchClick(this._state.film);
+  };
+
+  setOnEmojiClick = (eventListener) => {
+    this._callback.onEmojiClick = eventListener;
+    this.element.querySelector('.film-details__emoji-list').addEventListener('click', this.#onEmojiClick);
+  };
+
+  #onEmojiClick = (evt) => {
+    evt.preventDefault();
+    const emojiInputs = this.element.querySelectorAll('.film-details__emoji-item');
+    const setNewCommentEmoji = () => {
+      const newCommentEmoji = this.element.querySelector('.film-details__add-emoji-label');
+      newCommentEmoji.innerHTML = `<img src="./images/emoji/${evt.target.alt}.png" width="55" height="55" alt="${evt.target.dataset.emojiName}">`;
+    };
+    this._callback.onEmojiClick(evt, emojiInputs, setNewCommentEmoji);
+  };
+
+  static parseFilmDataToState = (data) => ({...data});
+  static parseFilmCommentsToState = (data) => ([...data]);
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#onAddToFavoritesButtonClick);
+    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#onAddToWatchedButtonClick);
+    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#onAddToWatchButtonClick);
+  };
+
+  _restoreHandlers = () => {
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#onClosePopupButtonClick);
+    this.#setInnerHandlers();
   };
 }
