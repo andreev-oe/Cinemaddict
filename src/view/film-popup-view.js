@@ -1,4 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
 
 const createCommentElement = (commentsId, commentsText) => {
   const divElement = document.createElement('div');
@@ -19,7 +24,7 @@ const createCommentElement = (commentsId, commentsText) => {
               <p class="film-details__comment-text">${filteredComments[i].comment}</p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${filteredComments[i].author}</span>
-                <span class="film-details__comment-day">${filteredComments[i].date}</span>
+                <span class="film-details__comment-day">${dayjs(filteredComments[i].date).fromNow()}</span>
                 <button class="film-details__comment-delete">Delete</button>
               </p>
             </div>
@@ -80,11 +85,11 @@ const createFilmPopupElement = (film, commentsText) => {
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
-              <td class="film-details__cell">${release.date}</td>
+              <td class="film-details__cell">${dayjs(release.date).format('DD MMMM YYYY')}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
-              <td class="film-details__cell">${runtime}</td>
+              <td class="film-details__cell">${dayjs.duration(runtime, 'minutes').format('H[h] : mm[m]')}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
