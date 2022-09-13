@@ -20,8 +20,6 @@ import {
   getRandomFloat,
   translitLatinToCyrillic,
 } from '../utils/utilities.js';
-import dayjs from 'dayjs';
-
 
 let filmIdCounter = 0;
 let commentIdCounter = 0;
@@ -55,17 +53,17 @@ const getFilmData = () => ({
     writers: getSmthList(TEMP_FILM_STUFF),
     actors: getSmthList(TEMP_FILM_STUFF),
     release: {
-      date:getRandomInteger(TEMP_DATES.Y_MIN, TEMP_DATES.Y_MAX),
+      date:`${getRandomInteger(TEMP_DATES.Y_MIN, TEMP_DATES.Y_MAX)}-${getRandomInteger(TEMP_DATES.M_MIN, TEMP_DATES.M_MAX)}-${getRandomInteger(TEMP_DATES.D_MIN, TEMP_DATES.D_MAX)}`,
       releaseCountry: `${TEMP_RELEASE_COUNTRIES[getRandomInteger(0, TEMP_RELEASE_COUNTRIES.length - 1)]}`
     },
-    runtime: `${getRandomInteger(TEMP_DURATION.MIN, TEMP_DURATION.MAX)} minutes`,
+    runtime: getRandomInteger(TEMP_DURATION.MIN, TEMP_DURATION.MAX),
     genre: getSmthList(TEMP_GENRES),
     description: TEMP_DESCRIPTION.slice(0, getRandomInteger(0, TEMP_DESCRIPTION.length))
   },
   userDetails: {
     watchlist: Boolean(getRandomInteger(TEMP_BOOLEAN.FALSE,TEMP_BOOLEAN.TRUE)),
     alreadyWatched: Boolean(getRandomInteger(TEMP_BOOLEAN.FALSE,TEMP_BOOLEAN.TRUE)),
-    watchingDate: dayjs(`${getRandomInteger(TEMP_DATES.Y_MIN, TEMP_DATES.Y_MAX)} - ${getRandomInteger(TEMP_DATES.M_MIN, TEMP_DATES.M_MAX)} - ${getRandomInteger(TEMP_DATES.D_MIN, TEMP_DATES.D_MAX)}`),
+    watchingDate: `${getRandomInteger(TEMP_DATES.Y_MIN, TEMP_DATES.Y_MAX)} - ${getRandomInteger(TEMP_DATES.M_MIN, TEMP_DATES.M_MAX)} - ${getRandomInteger(TEMP_DATES.D_MIN, TEMP_DATES.D_MAX)}`,
     favorite: Boolean(getRandomInteger(TEMP_BOOLEAN.FALSE,TEMP_BOOLEAN.TRUE))
   }
 });
@@ -74,7 +72,7 @@ const getComment = () => ({
   id: commentIdCounter++,
   author: `${TEMP_FILM_STUFF[getRandomInteger(0, TEMP_FILM_STUFF.length - 1)]}`,
   comment: TEMP_COMMENTS[getRandomInteger(0, TEMP_COMMENTS.length - 1)],
-  date: dayjs(`${getRandomInteger(TEMP_DATES.Y_MIN, TEMP_DATES.Y_MAX)}-${getRandomInteger(TEMP_DATES.M_MIN, TEMP_DATES.M_MAX)}-${getRandomInteger(TEMP_DATES.D_MIN, TEMP_DATES.D_MAX)}`).format('DD/MM/YYYY'),
+  date: `${getRandomInteger(TEMP_DATES.Y_MIN, TEMP_DATES.Y_MAX)}-${getRandomInteger(TEMP_DATES.M_MIN, TEMP_DATES.M_MAX)}-${getRandomInteger(TEMP_DATES.D_MIN, TEMP_DATES.D_MAX)}`,
   emotion: EMOTIONS[getRandomInteger(0, EMOTIONS.length - 1)],
 });
 
