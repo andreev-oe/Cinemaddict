@@ -60,6 +60,14 @@ export default class FilmsPresenter {
     this.#filmPresenter = new Map();
   }
 
+  get films () {
+    return this.#filmsModel.films;
+  }
+
+  get comments () {
+    return this.#filmsModel.comments;
+  }
+
   init = () => {
     this.#renderPage();
     document.body.addEventListener('click', this.#onControlButtonClick);
