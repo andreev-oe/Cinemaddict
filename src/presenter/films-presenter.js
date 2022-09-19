@@ -19,7 +19,7 @@ import {
   sortByDefault,
   sortByDay,
   sortByRating,
-} from '../utils/filters.js';
+} from '../utils/sort.js';
 import {updateFilm} from '../utils/utilities.js';
 
 export default class FilmsPresenter {
@@ -38,24 +38,26 @@ export default class FilmsPresenter {
   #filmSortView = null;
   #navigationView = null;
   #filmsModel = null;
+  #commentsModel = null;
   #popupPresenter = null;
   #showMoreButtonPresenter = null;
   #filmPresenter = null;
   #shownFilmCards = [];
   #shownExtraFilmCards = [];
 
-  constructor(headerContainer, mainContainer, footerContainer, filmsModel) {
+  constructor(headerContainer, mainContainer, footerContainer, filmsModel, commentsModel) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
     this.#footerContainer = footerContainer;
     this.#filmsModel = filmsModel;
+    this.#commentsModel = commentsModel;
     this.#films = [...this.#filmsModel.films];
-    this.#comments = [...this.#filmsModel.comments];
+    this.#comments = [...this.#commentsModel.comments];
     this.#filmSortView = new FilmsSortView(this.#films);
     this.#navigationView = new NavigationView(this.#films);
     this.#footerStatisticsView = new FooterStatisticsView(this.#films);
     this.#profileView = new ProfileView();
-    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#mainContainer);
+    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer);
     this.#showMoreButtonPresenter = new ShowMoreButtonPresenter();
     this.#filmPresenter = new Map();
   }
@@ -65,7 +67,7 @@ export default class FilmsPresenter {
   }
 
   get comments () {
-    return this.#filmsModel.comments;
+    return this.#commentsModel.comments;
   }
 
   init = () => {

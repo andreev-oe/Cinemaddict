@@ -14,9 +14,9 @@ export default class PopupPresenter {
   #evt = null;
   #popupClosed = true;
 
-  constructor(filmsModel, mainContainer) {
+  constructor(filmsModel, commentsModel, mainContainer) {
     this.#films = [...filmsModel.films];
-    this.#comments = [...filmsModel.comments];
+    this.#comments = [...commentsModel.comments];
     this.#mainContainer = mainContainer;
     this.#filmPopup = null;
     this.#popupPresenter = new Map();
