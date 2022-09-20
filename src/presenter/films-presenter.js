@@ -1,6 +1,7 @@
 import {
   EXTRA_FILMS_CARDS_AMOUNT,
-  FILMS_PORTION
+  FILMS_PORTION,
+  UserAction
 } from '../constants.js';
 import PopupPresenter from './popup-presenter.js';
 import FilmCardPresenter from './film-card-presenter.js';
@@ -51,13 +52,13 @@ export default class FilmsPresenter {
     this.#footerContainer = footerContainer;
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
-    this.#films = [...this.#filmsModel.films];
-    this.#comments = [...this.#commentsModel.comments];
+    this.#films = [...this.#filmsModel.getFilms()];
+    this.#comments = [...this.#commentsModel.getAllComments()];
     this.#filmSortView = new FilmsSortView(this.#films);
     this.#navigationView = new NavigationView(this.#films);
     this.#footerStatisticsView = new FooterStatisticsView(this.#films);
     this.#profileView = new ProfileView();
-    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer);
+    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
     this.#showMoreButtonPresenter = new ShowMoreButtonPresenter();
     this.#filmPresenter = new Map();
   }
@@ -73,6 +74,27 @@ export default class FilmsPresenter {
   init = () => {
     this.#renderPage();
     document.body.addEventListener('click', this.#onControlButtonClick);
+  };
+
+  #userActionHandler = (actionType, updateType, filmData, commentData) => {
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this.#filmsModel.updateFilms(updateType, filmData);
+        this.#updateFilm(filmData);
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#commentsModel.addComment(updateType, commentData);
+        this.#filmsModel.updateFilms(updateType, filmData);
+        this.#updateFilm(filmData);
+        this.#popupPresenter.updatePopup(filmData);
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#commentsModel.deleteComment(updateType, commentData);
+        this.#filmsModel.updateFilms(updateType, filmData);
+        this.#updateFilm(filmData);
+        this.#popupPresenter.updatePopup(filmData);
+        break;
+    }
   };
 
   #onControlButtonClick = (evt) =>{

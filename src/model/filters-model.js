@@ -4,11 +4,11 @@ import {FilterType} from '../constants.js';
 export default class FiltersModel extends Observable{
   #filter = FilterType.DEFAULT;
 
-  get filter () {
+  getFilter () {
     return this.#filter;
   }
 
-  update (updateType, filter) {
+  setFilter (updateType, filter) {
     this.#filter = filter;
     this._notify(updateType, filter);
   }

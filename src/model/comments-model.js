@@ -4,18 +4,26 @@ import Observable from '../framework/observable.js';
 
 export default class CommentsModel extends Observable{
   #comments = Array.from({length:  FILM_CARDS_AMOUNT}, getComment);
+  #filmComments = null;
 
-  get comments () {
+  getAllComments () {
     return this.#comments;
   }
 
-  add (updateType, update) {
-    this.#comments.push(update);
-    this._notify(updateType, update);
+  getFilmComments (film) {
+    this.#filmComments = film.comments.map((commentId) => {
+      this.#comments.find((comment) => comment.id === commentId);
+    });
+    return this.#filmComments;
   }
 
-  delete (updateType, update) {
-    const index = this.#comments.findIndex((comment) => comment.id === update.id);
+  addComment (updateType, commentData) {
+    this.#comments.push(commentData);
+    this._notify(updateType, commentData);
+  }
+
+  deleteComment (updateType, commentData) {
+    const index = this.#comments.findIndex((comment) => comment.id === commentData.id);
     if (index === -1) {
       throw new Error('comment does not exist');
     }
@@ -23,6 +31,6 @@ export default class CommentsModel extends Observable{
       ...this.#comments.slice(0, index),
       ...this.#comments.slice(index + 1),
     ];
-    this._notify(updateType, update);
+    this._notify(updateType, commentData);
   }
 }

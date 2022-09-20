@@ -25,7 +25,7 @@ const createCommentElement = (commentsId, commentsText) => {
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${filteredComments[i].author}</span>
                 <span class="film-details__comment-day">${dayjs(filteredComments[i].date).fromNow()}</span>
-                <button class="film-details__comment-delete">Delete</button>
+                <button class="film-details__comment-delete" data-comment-id = "${filteredComments[i].id}">Delete</button>
               </p>
             </div>
           </li>`;
@@ -225,6 +225,17 @@ export default class FilmPopupView extends AbstractStatefulView {
     this._callback.onEmojiClick(evt, emojiInputs, setNewCommentEmoji);
   };
 
+  #onCommentDeleteButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.onCommentDeleteButtonClick(evt);
+  };
+
+  setOnCommentDeleteButtonClick = (eventListener) => {
+    this._callback.onCommentDeleteButtonClick = eventListener;
+    this.element.querySelectorAll('.film-details__comment-delete')
+      .forEach((deleteButton) => deleteButton.addEventListener('click', this.#onCommentDeleteButtonClick));
+  };
+
   static parseFilmDataToState = (data) => ({...data});
   static parseFilmCommentsToState = (data) => ([...data]);
 
@@ -238,4 +249,5 @@ export default class FilmPopupView extends AbstractStatefulView {
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#onClosePopupButtonClick);
     this.#setInnerHandlers();
   };
+
 }
