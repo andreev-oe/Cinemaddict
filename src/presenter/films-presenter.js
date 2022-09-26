@@ -1,6 +1,7 @@
 import {
   EXTRA_FILMS_CARDS_AMOUNT,
   FILMS_PORTION,
+  FilterType,
   UserAction
 } from '../constants.js';
 import PopupPresenter from './popup-presenter.js';
@@ -12,7 +13,7 @@ import NoFilmsListSectionView from '../view/no-films-list-section-view.js';
 import FilmsListExtraSectionView from '../view/films-list-extra-section-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import FilmsSortView from '../view/films-sort-view.js';
-import NavigationView from '../view/navigation-view.js';
+import FilterView from '../view/filter-view.js';
 import ProfileView from '../view/profile-view.js';
 import FooterStatisticsView from '../view/footer-statistics-view.js';
 import {render} from '../framework/render.js';
@@ -37,25 +38,27 @@ export default class FilmsPresenter {
   #films = null;
   #comments = null;
   #filmSortView = null;
-  #navigationView = null;
+  #filterView = null;
   #filmsModel = null;
   #commentsModel = null;
+  #filterModel = null;
   #popupPresenter = null;
   #showMoreButtonPresenter = null;
   #filmPresenter = null;
   #shownFilmCards = [];
   #shownExtraFilmCards = [];
 
-  constructor(headerContainer, mainContainer, footerContainer, filmsModel, commentsModel) {
+  constructor(headerContainer, mainContainer, footerContainer, filmsModel, commentsModel, filterModel) {
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;
     this.#footerContainer = footerContainer;
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
+    this.#filterModel = filterModel;
     this.#films = [...this.#filmsModel.getFilms()];
     this.#comments = [...this.#commentsModel.getAllComments()];
     this.#filmSortView = new FilmsSortView(this.#films);
-    this.#navigationView = new NavigationView(this.#films);
+    this.#filterView = new FilterView(this.#films, FilterType.ALL);
     this.#footerStatisticsView = new FooterStatisticsView(this.#films);
     this.#profileView = new ProfileView();
     this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
@@ -110,7 +113,7 @@ export default class FilmsPresenter {
   #renderPage = () => {
     this.#filmSortView.setSortButtonsHandlers(sortByDefault, sortByDay, sortByRating, this.renderContent, this.#shownFilmCards);
     render(this.#profileView, this.#headerContainer);
-    render(this.#navigationView, this.#mainContainer);
+    render(this.#filterView, this.#mainContainer);
     render(this.#filmSortView, this.#mainContainer);
     render(this.#footerStatisticsView, this.#footerContainer);
     this.renderContent();

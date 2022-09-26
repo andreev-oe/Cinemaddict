@@ -2,7 +2,7 @@ import Observable from '../framework/observable.js';
 import {FilterType} from '../constants.js';
 
 export default class FiltersModel extends Observable{
-  #filter = FilterType.DEFAULT;
+  #filter = FilterType.ALL;
 
   getFilter () {
     return this.#filter;

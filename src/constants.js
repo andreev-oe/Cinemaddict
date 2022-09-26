@@ -9,7 +9,7 @@ const SortType = {
   BY_RATING: 'byRating',
 };
 const FilterType = {
-  DEFAULT: 'default',
+  ALL: 'all',
   WATCHLIST: 'watchlist',
   HISTORY: 'history',
   FAVOURITES: 'favourites',
