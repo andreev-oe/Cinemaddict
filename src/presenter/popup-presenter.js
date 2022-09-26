@@ -8,6 +8,7 @@ import {
   UpdateType,
   UserAction
 } from '../constants.js';
+import dayjs from 'dayjs';
 
 export default class PopupPresenter {
   #filmPopup = null;
@@ -77,6 +78,7 @@ export default class PopupPresenter {
     this.#filmPopup.setOnAddToWatchedButtonClick(this.#onAddToWatchButtonClick);
     this.#filmPopup.setOnEmojiClick(this.#onEmojiClick);
     this.#filmPopup.setOnCommentDeleteButtonClick(this.#onDeleteCommentButtonClick);
+    this.#filmPopup.setOnCommentAddButtonsPress(this.#onCommentAddButtonsPress);
     document.body.addEventListener('keydown', this.#onEscKeyDown);
     this.#filmPopup.setOnClosePopupButtonClick(this.#onClosePopupButtonClick);
     if (prevPopupView === null) {
@@ -126,6 +128,24 @@ export default class PopupPresenter {
         ]
       },
       commentToDelete
+    );
+  };
+
+  #onCommentAddButtonsPress = (evt, selectedEmoji) => {
+    const commentToAdd = {
+      id: 101,
+      author: 'defaultUser',
+      comment: evt.target.value,
+      date: dayjs().format('DD MMMM YYYY'),
+      emotion: selectedEmoji,
+    };
+    this.#film.comments.push(commentToAdd.id);
+    this.#comments.push(commentToAdd);
+    this.#changeData(
+      UserAction.ADD_COMMENT,
+      UpdateType.PATCH,
+      this.#film,
+      commentToAdd
     );
   };
 

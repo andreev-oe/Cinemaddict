@@ -220,7 +220,7 @@ export default class FilmPopupView extends AbstractStatefulView {
     const emojiInputs = this.element.querySelectorAll('.film-details__emoji-item');
     const setNewCommentEmoji = () => {
       const newCommentEmoji = this.element.querySelector('.film-details__add-emoji-label');
-      newCommentEmoji.innerHTML = `<img src="./images/emoji/${evt.target.alt}.png" width="55" height="55" alt="${evt.target.dataset.emojiName}">`;
+      newCommentEmoji.innerHTML = `<img src="./images/emoji/${evt.target.alt}.png" width="55" height="55" alt="${evt.target.alt}">`;
     };
     this._callback.onEmojiClick(evt, emojiInputs, setNewCommentEmoji);
   };
@@ -234,6 +234,19 @@ export default class FilmPopupView extends AbstractStatefulView {
     this._callback.onCommentDeleteButtonClick = eventListener;
     this.element.querySelectorAll('.film-details__comment-delete')
       .forEach((deleteButton) => deleteButton.addEventListener('click', this.#onCommentDeleteButtonClick));
+  };
+
+  #onCommentAddButtonsPress = (evt) => {
+    if (evt.ctrlKey && evt.key === 'Enter') {
+      evt.preventDefault();
+      const selectedEmoji = this.element.querySelector('.film-details__add-emoji-label').firstChild.alt;
+      this._callback.onCommentAddButtonPress(evt, selectedEmoji);
+    }
+  };
+
+  setOnCommentAddButtonsPress = (eventListener) => {
+    this._callback.onCommentAddButtonPress = eventListener;
+    this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#onCommentAddButtonsPress);
   };
 
   static parseFilmDataToState = (data) => ({...data});
