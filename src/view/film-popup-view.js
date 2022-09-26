@@ -1,5 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import dayjs from 'dayjs';
+import he from 'he';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(duration);
@@ -18,10 +19,10 @@ const createCommentElement = (commentsId, commentsText) => {
   for (let i = 0; i < filteredComments.length; i++) {
     divElement.textContent += `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
-              <img src="./images/emoji/${commentsText[i].emotion}.png" width="55" height="55" alt="emoji-sleeping">
+              <img src="./images/emoji/${filteredComments[i].emotion}.png" width="55" height="55" alt="emoji-${filteredComments[i].emotion}">
             </span>
             <div>
-              <p class="film-details__comment-text">${filteredComments[i].comment}</p>
+              <p class="film-details__comment-text">${he.encode(filteredComments[i].comment)}</p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${filteredComments[i].author}</span>
                 <span class="film-details__comment-day">${dayjs(filteredComments[i].date).fromNow()}</span>
@@ -239,7 +240,11 @@ export default class FilmPopupView extends AbstractStatefulView {
   #onCommentAddButtonsPress = (evt) => {
     if (evt.ctrlKey && evt.key === 'Enter') {
       evt.preventDefault();
-      const selectedEmoji = this.element.querySelector('.film-details__add-emoji-label').firstChild.alt;
+      let selectedEmoji;
+      const selectedEmojiElement = this.element.querySelector('.film-details__add-emoji-label').firstChild;
+      if (selectedEmojiElement) {
+        selectedEmoji = selectedEmojiElement.alt;
+      }
       this._callback.onCommentAddButtonPress(evt, selectedEmoji);
     }
   };

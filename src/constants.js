@@ -2,6 +2,7 @@ const FILM_CARDS_AMOUNT = 12;
 const EXTRA_FILMS_CARDS_AMOUNT = 2;
 const FILMS_PORTION = 5;
 const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
+const DEFAULT_EMOJI = 'smile';
 const SortType = {
   DEFAULT: 'byDefault',
   BY_DATE: 'byDate',
@@ -33,4 +34,5 @@ export {
   FilterType,
   UpdateType,
   UserAction,
+  DEFAULT_EMOJI
 };

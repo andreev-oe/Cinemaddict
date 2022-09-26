@@ -6,9 +6,13 @@ import {
 import {updateFilm} from '../utils/utilities.js';
 import {
   UpdateType,
-  UserAction
+  UserAction,
+  DEFAULT_EMOJI
 } from '../constants.js';
 import dayjs from 'dayjs';
+import {customAlphabet} from 'nanoid';
+
+const nanoid = customAlphabet('1234567890', 10);
 
 export default class PopupPresenter {
   #filmPopup = null;
@@ -131,12 +135,12 @@ export default class PopupPresenter {
     );
   };
 
-  #onCommentAddButtonsPress = (evt, selectedEmoji) => {
+  #onCommentAddButtonsPress = (evt, selectedEmoji = DEFAULT_EMOJI) => {
     const commentToAdd = {
-      id: 101,
+      id: Number(nanoid()),
       author: 'defaultUser',
       comment: evt.target.value,
-      date: dayjs().format('DD MMMM YYYY'),
+      date: dayjs(),
       emotion: selectedEmoji,
     };
     this.#film.comments.push(commentToAdd.id);
