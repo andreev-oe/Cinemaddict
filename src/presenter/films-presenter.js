@@ -1,7 +1,6 @@
 import {
   EXTRA_FILMS_CARDS_AMOUNT,
   FILMS_PORTION,
-  FilterType,
   UserAction
 } from '../constants.js';
 import PopupPresenter from './popup-presenter.js';
@@ -22,6 +21,12 @@ import {
   sortByDay,
   sortByRating,
 } from '../utils/sort.js';
+import {
+  filterAll,
+  filterWatchList,
+  filterHistory,
+  filterFavorites,
+} from '../utils/filter.js';
 import {updateFilm} from '../utils/utilities.js';
 
 export default class FilmsPresenter {
@@ -45,7 +50,8 @@ export default class FilmsPresenter {
   #popupPresenter = null;
   #showMoreButtonPresenter = null;
   #filmPresenter = null;
-  #shownFilmCards = [];
+  #shownFilteredFilmCards = [];
+  #shownSortedFilmCards = [];
   #shownExtraFilmCards = [];
 
   constructor(headerContainer, mainContainer, footerContainer, filmsModel, commentsModel, filterModel) {
@@ -58,7 +64,7 @@ export default class FilmsPresenter {
     this.#films = [...this.#filmsModel.getFilms()];
     this.#comments = [...this.#commentsModel.getAllComments()];
     this.#filmSortView = new FilmsSortView(this.#films);
-    this.#filterView = new FilterView(this.#films, FilterType.ALL);
+    this.#filterView = new FilterView(this.#films);
     this.#footerStatisticsView = new FooterStatisticsView(this.#films);
     this.#profileView = new ProfileView();
     this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
@@ -77,6 +83,7 @@ export default class FilmsPresenter {
   init = () => {
     this.#renderPage();
     document.body.addEventListener('click', this.#onControlButtonClick);
+
   };
 
   #userActionHandler = (actionType, updateType, filmData, commentData) => {
@@ -111,7 +118,8 @@ export default class FilmsPresenter {
   };
 
   #renderPage = () => {
-    this.#filmSortView.setSortButtonsHandlers(sortByDefault, sortByDay, sortByRating, this.renderContent, this.#shownFilmCards);
+    this.#filmSortView.setSortButtonsHandlers(sortByDefault, sortByDay, sortByRating, this.renderContent, this.#shownSortedFilmCards);
+    this.#filterView.setFilterButtonsHandlers(filterAll, filterWatchList, filterHistory, filterFavorites, this.renderContent, this.#shownFilteredFilmCards);
     render(this.#profileView, this.#headerContainer);
     render(this.#filterView, this.#mainContainer);
     render(this.#filmSortView, this.#mainContainer);
@@ -124,7 +132,8 @@ export default class FilmsPresenter {
       this.#shownExtraFilmCards.forEach((extraFilmCard) => extraFilmCard.element.parentElement.remove());
     }
     this.#renderedFilmCards = FILMS_PORTION;
-    this.#shownFilmCards = this.#filmSortView.showedFilms;
+    this.#shownSortedFilmCards = this.#filmSortView.showedFilms;
+    this.#shownFilteredFilmCards = this.#filterView.showedFilms;
     render(this.#filmsMainContainerComponent, this.#mainContainer);
     if (films.length !== 0) {
       render(this.#filmsListSectionComponent, this.#filmsMainContainerComponent.element);
@@ -142,14 +151,15 @@ export default class FilmsPresenter {
   };
 
   #renderFilmCards = (films) => {
-    for (let i = 0; i < Math.min(this.#films.length, FILMS_PORTION) ; i++) {
+    for (let i = 0; i < Math.min(this.#films.length, FILMS_PORTION); i++) {
       this.#renderFilmCard(i, films);
     }
   };
 
   #renderFilmCard = (i, films = this.#films, comments = this.#comments, container = this.#filmContainerComponent) => {
     const filmCard = new FilmCardPresenter(films[i], comments[i], container.element);
-    this.#shownFilmCards.push(filmCard);
+    this.#shownFilteredFilmCards.push(filmCard);
+    this.#shownSortedFilmCards.push(filmCard);
     filmCard.renderFilmCard(films[i]);
     this.#filmPresenter.set(films[i].id, filmCard);
   };

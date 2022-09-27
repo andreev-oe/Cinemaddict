@@ -30,7 +30,6 @@ export default class FilmsSortView extends AbstractView {
 
   get showedFilms () {
     return this.#shownFilmCards;
-
   }
 
   #removeActiveButtonClass = () => {
