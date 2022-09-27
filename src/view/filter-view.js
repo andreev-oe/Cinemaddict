@@ -41,6 +41,7 @@ export default class FilterView extends AbstractView {
   #filterFavoritesButton = null;
   #shownFilmCards = [];
   #filterButtons = null;
+  #filmsPresenter = null;
 
   constructor(films, selectedFilter) {
     super();
@@ -72,12 +73,12 @@ export default class FilterView extends AbstractView {
     thisContent.#removeActiveButtonClass();
   };
 
-  setFilterButtonsHandlers = (all, watchList, history, favorites, init, shownFilmCards) => {
+  setFilterButtonsHandlers = (all, watchList, history, favorites, shownFilmCards, filmsPresenter) => {
+    this.#filmsPresenter = filmsPresenter;
     this._callback.filterAll = all;
     this._callback.filterWatchList = watchList;
     this._callback.filterHistory = history;
     this._callback.filterFavorites = favorites;
-    this._callback.filmsInit = init;
     this.#shownFilmCards = shownFilmCards;
     this.#filterAllButton.addEventListener('click', this.#onFilterAllButtonClick);
     this.#filterWatchListButton.addEventListener('click', this.#onFilterWatchListButtonClick);
@@ -92,7 +93,8 @@ export default class FilterView extends AbstractView {
     }
     this.#clearContent(this);
     const filteredFilms = this._callback.filterAll(this.#films, this.#filterAllButton, this.#activeButtonClass);
-    this._callback.filmsInit(filteredFilms);
+    this.#filmsPresenter.films = filteredFilms;
+    this.#filmsPresenter.init(filteredFilms);
   };
 
   #onFilterWatchListButtonClick = (evt) => {
@@ -102,7 +104,8 @@ export default class FilterView extends AbstractView {
     }
     this.#clearContent(this);
     const filteredFilms = this._callback.filterWatchList(this.#films, this.#filterWatchListButton, this.#activeButtonClass);
-    this._callback.filmsInit(filteredFilms);
+    this.#filmsPresenter.films = filteredFilms;
+    this.#filmsPresenter.init(filteredFilms);
   };
 
   #onFilterHistoryButtonClick = (evt) => {
@@ -112,7 +115,8 @@ export default class FilterView extends AbstractView {
     }
     this.#clearContent(this);
     const filteredFilms = this._callback.filterHistory(this.#films, this.#filterHistoryButton, this.#activeButtonClass);
-    this._callback.filmsInit(filteredFilms);
+    this.#filmsPresenter.films = filteredFilms;
+    this.#filmsPresenter.init(filteredFilms);
   };
 
   #onFilterFavoritesButtonClick = (evt) => {
@@ -122,7 +126,8 @@ export default class FilterView extends AbstractView {
     }
     this.#clearContent(this);
     const filteredFilms = this._callback.filterFavorites(this.#films, this.#filterFavoritesButton, this.#activeButtonClass);
-    this._callback.filmsInit(filteredFilms);
+    this.#filmsPresenter.films = filteredFilms;
+    this.#filmsPresenter.init(filteredFilms);
   };
 
   get template () {
