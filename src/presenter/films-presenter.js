@@ -156,7 +156,8 @@ export default class FilmsPresenter {
       this.#filterModel.filterHistory,
       this.#filterModel.filterFavorites,
       this.#shownFilteredFilmCards,
-      this
+      this,
+      this.#filmSortView.defaultSort
     );
     if (this.#shownExtraFilmCards) {
       this.#shownExtraFilmCards.forEach((extraFilmCard) => extraFilmCard.element.parentElement.remove());

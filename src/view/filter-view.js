@@ -75,12 +75,13 @@ export default class FilterView extends AbstractView {
     thisContent.#removeActiveButtonClass();
   };
 
-  setFilterButtonsHandlers = (all, watchList, history, favorites, shownFilmCards, filmsPresenter) => {
+  setFilterButtonsHandlers = (all, watchList, history, favorites, shownFilmCards, filmsPresenter, defaultSort) => {
     this.#filmsPresenter = filmsPresenter;
     this._callback.filterAll = all;
     this._callback.filterWatchList = watchList;
     this._callback.filterHistory = history;
     this._callback.filterFavorites = favorites;
+    this._callback.defaultSort = defaultSort;
     this.#shownFilmCards = shownFilmCards;
     this.#filterAllButton.addEventListener('click', this.#onFilterAllButtonClick);
     this.#filterWatchListButton.addEventListener('click', this.#onFilterWatchListButtonClick);
@@ -99,6 +100,7 @@ export default class FilterView extends AbstractView {
     this.#filmsPresenter.init(filteredFilms);
     this.#filteredFilms = filteredFilms;
     this.createNavigationElement(this.#filteredFilms);
+    this._callback.defaultSort(evt);
   };
 
   #onFilterWatchListButtonClick = (evt) => {
@@ -111,6 +113,7 @@ export default class FilterView extends AbstractView {
     this.#filmsPresenter.films = filteredFilms;
     this.#filmsPresenter.init(filteredFilms);
     this.#filteredFilms = filteredFilms;
+    this._callback.defaultSort(evt);
   };
 
   #onFilterHistoryButtonClick = (evt) => {
@@ -123,6 +126,7 @@ export default class FilterView extends AbstractView {
     this.#filmsPresenter.films = filteredFilms;
     this.#filmsPresenter.init(filteredFilms);
     this.#filteredFilms = filteredFilms;
+    this._callback.defaultSort(evt);
   };
 
   #onFilterFavoritesButtonClick = (evt) => {
@@ -135,6 +139,7 @@ export default class FilterView extends AbstractView {
     this.#filmsPresenter.films = filteredFilms;
     this.#filmsPresenter.init(filteredFilms);
     this.#filteredFilms = filteredFilms;
+    this._callback.defaultSort(evt);
   };
 
   get template () {

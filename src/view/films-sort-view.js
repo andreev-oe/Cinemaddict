@@ -8,6 +8,7 @@ const createSortElement = () => `<ul class="sort">
 
 export default class FilmsSortView extends AbstractView {
   #films = null;
+  #srcFilms = null;
   #defaultSortButton = null;
   #dateSortButton = null;
   #ratingSortButton = null;
@@ -18,6 +19,7 @@ export default class FilmsSortView extends AbstractView {
   constructor(films) {
     super();
     this.#films = films;
+    this.#srcFilms = films;
     this.#defaultSortButton = this.element.querySelector('.sort__button--default');
     this.#dateSortButton = this.element.querySelector('.sort__button--date');
     this.#ratingSortButton = this.element.querySelector('.sort__button--rating');
@@ -34,6 +36,10 @@ export default class FilmsSortView extends AbstractView {
 
   get () {
     return this.#films;
+  }
+
+  get defaultSort () {
+    return this.#onDefaultSortButtonClick;
   }
 
   set (films) {
@@ -73,7 +79,7 @@ export default class FilmsSortView extends AbstractView {
       return;
     }
     this.#clearContent(this);
-    const filteredFilms = this._callback.defaultSort(this.#films, this.#defaultSortButton, this.#activeButtonClass);
+    const filteredFilms = this._callback.defaultSort(this.#srcFilms, this.#films,this.#defaultSortButton, this.#activeButtonClass);
     this._callback.filmsInit(filteredFilms);
   };
 
