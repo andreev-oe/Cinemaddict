@@ -15,7 +15,11 @@ import FilmsSortView from '../view/films-sort-view.js';
 import FilterView from '../view/filter-view.js';
 import ProfileView from '../view/profile-view.js';
 import FooterStatisticsView from '../view/footer-statistics-view.js';
-import {render} from '../framework/render.js';
+import {
+  remove,
+  render,
+  replace
+} from '../framework/render.js';
 import {
   sortByDefault,
   sortByDay,
@@ -110,6 +114,18 @@ export default class FilmsPresenter {
     if (evt.target.dataset.button) {
       const i = evt.target.parentNode.dataset.filmId;
       this.#updateFilm(this.#films.find((film) => film.id === Number(i)));
+      const prevFilterView = this.#filterView;
+      this.#filterView = new FilterView(this.#films);
+      replace(this.#filterView, prevFilterView);
+      remove(prevFilterView);
+      this.#filterView.setFilterButtonsHandlers(
+        this.#filterModel.filterAll,
+        this.#filterModel.filterWatchList,
+        this.#filterModel.filterHistory,
+        this.#filterModel.filterFavorites,
+        this.#shownFilteredFilmCards,
+        this
+      );
       if (!this.#popupPresenter.popupClosedState) {
         this.#popupPresenter.updatePopup(this.#films[i]);
       }
