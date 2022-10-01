@@ -12,6 +12,7 @@ const UpdateType = {
   PATCH: 'patch',
   MINOR: 'minor',
   MAJOR: 'major',
+  INIT: 'init',
 };
 const UserAction = {
   UPDATE_FILM: 'updateFilm',

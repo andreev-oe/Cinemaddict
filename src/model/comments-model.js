@@ -1,9 +1,7 @@
-import {FILM_CARDS_AMOUNT} from '../constants.js';
-import {getComment} from '../temp-data/temp.js';
 import Observable from '../framework/observable.js';
 
 export default class CommentsModel extends Observable{
-  #comments = Array.from({length:  FILM_CARDS_AMOUNT}, getComment);
+  #comments = [];
   #filmComments = null;
 
   getAllComments () {
