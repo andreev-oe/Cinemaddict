@@ -1,13 +1,7 @@
 const FILM_CARDS_AMOUNT = 12;
-const EXTRA_FILMS_CARDS_AMOUNT = 2;
 const FILMS_PORTION = 5;
 const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 const DEFAULT_EMOJI = 'smile';
-const SortType = {
-  DEFAULT: 'byDefault',
-  BY_DATE: 'byDate',
-  BY_RATING: 'byRating',
-};
 const FilterType = {
   ALL: 'all',
   WATCHLIST: 'watchlist',
@@ -27,10 +21,8 @@ const UserAction = {
 
 export {
   FILM_CARDS_AMOUNT,
-  EXTRA_FILMS_CARDS_AMOUNT,
   FILMS_PORTION,
   EMOTIONS,
-  SortType,
   FilterType,
   UpdateType,
   UserAction,

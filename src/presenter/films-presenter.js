@@ -1,6 +1,5 @@
 import {
-  EXTRA_FILMS_CARDS_AMOUNT,
-  FILMS_PORTION,
+  FILMS_PORTION, FilterType,
   UserAction
 } from '../constants.js';
 import PopupPresenter from './popup-presenter.js';
@@ -9,7 +8,6 @@ import ShowMoreButtonPresenter from './show-more-button-presenter.js';
 import FilmsListContainerView from '../view/films-list-container-view.js';
 import FilmsListSectionView from '../view/films-list-section-view.js';
 import NoFilmsListSectionView from '../view/no-films-list-section-view.js';
-import FilmsListExtraSectionView from '../view/films-list-extra-section-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import FilmsSortView from '../view/films-sort-view.js';
 import FilterView from '../view/filter-view.js';
@@ -30,7 +28,7 @@ import {updateFilm} from '../utils/utilities.js';
 export default class FilmsPresenter {
   #filmsMainContainerComponent = new FilmsContainerView();
   #filmsListSectionComponent = new FilmsListSectionView();
-  #noFilmsListSectionComponent = new NoFilmsListSectionView();
+  #noFilmsListSectionComponent = null;
   #filmContainerComponent = new FilmsListContainerView();
   #renderedFilmCards = FILMS_PORTION;
   #headerContainer = null;
@@ -50,7 +48,7 @@ export default class FilmsPresenter {
   #filmPresenter = null;
   #shownFilteredFilmCards = [];
   #shownSortedFilmCards = [];
-  #shownExtraFilmCards = [];
+  #selectedFilter = FilterType.ALL;
 
   constructor(headerContainer, mainContainer, footerContainer, filmsModel, commentsModel, filterModel) {
     this.#headerContainer = headerContainer;
@@ -62,7 +60,7 @@ export default class FilmsPresenter {
     this.#films = [...this.#filmsModel.getFilms()];
     this.#comments = [...this.#commentsModel.getAllComments()];
     this.#filmSortView = new FilmsSortView(this.#films);
-    this.#filterView = new FilterView(this.#films);
+    this.#filterView = new FilterView(this.#films, this.#selectedFilter);
     this.#footerStatisticsView = new FooterStatisticsView(this.#films);
     this.#profileView = new ProfileView();
     this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
@@ -80,6 +78,14 @@ export default class FilmsPresenter {
 
   set films (films) {
     this.#films = films;
+  }
+
+  get filter () {
+    return this.#selectedFilter;
+  }
+
+  set filter (filter) {
+    this.#selectedFilter = filter;
   }
 
   init = (films = this.#films) => {
@@ -115,7 +121,7 @@ export default class FilmsPresenter {
       const i = evt.target.parentNode.dataset.filmId;
       this.#updateFilm(this.#films.find((film) => film.id === Number(i)));
       const prevFilterView = this.#filterView;
-      this.#filterView = new FilterView(this.#films);
+      this.#filterView = new FilterView(this.#films, this.#selectedFilter);
       replace(this.#filterView, prevFilterView);
       remove(prevFilterView);
       this.#filterView.setFilterButtonsHandlers(
@@ -159,14 +165,14 @@ export default class FilmsPresenter {
       this,
       this.#filmSortView.defaultSort
     );
-    if (this.#shownExtraFilmCards) {
-      this.#shownExtraFilmCards.forEach((extraFilmCard) => extraFilmCard.element.parentElement.remove());
-    }
     this.#renderedFilmCards = FILMS_PORTION;
     this.#shownSortedFilmCards = this.#filmSortView.showedFilms;
     this.#shownFilteredFilmCards = this.#filterView.showedFilms;
     render(this.#filmsMainContainerComponent, this.#mainContainer);
-    if (films.length !== 0) {
+    if (this.#films.length !== 0) {
+      if (this.#noFilmsListSectionComponent) {
+        remove(this.#noFilmsListSectionComponent);
+      }
       render(this.#filmsListSectionComponent, this.#filmsMainContainerComponent.element);
       render(this.#filmContainerComponent, this.#filmsListSectionComponent.element);
       this.#renderFilmCards(films);
@@ -175,10 +181,17 @@ export default class FilmsPresenter {
       }
       if (films.length > FILMS_PORTION) {
         this.#showMoreButtonPresenter.renderShowMoreButton(this.#filmsMainContainerComponent, this.#onShowMoreButtonClick, films);
-        this.#renderExtraFilms();
       }
       document.body.addEventListener('click', this.#popupPresenter.onFilmImgClick);
     } else {
+      remove(this.#filmSortView);
+      if (this.#noFilmsListSectionComponent) {
+        remove(this.#noFilmsListSectionComponent);
+      }
+      if (this.#showMoreButtonPresenter) {
+        this.#showMoreButtonPresenter.destroy();
+      }
+      this.#noFilmsListSectionComponent = new NoFilmsListSectionView(this.#selectedFilter);
       render(this.#noFilmsListSectionComponent, this.#filmsMainContainerComponent.element);
       render(this.#filmContainerComponent, this.#noFilmsListSectionComponent.element);
     }
@@ -196,19 +209,6 @@ export default class FilmsPresenter {
     this.#shownSortedFilmCards.push(filmCard);
     filmCard.renderFilmCard(films[i]);
     this.#filmPresenter.set(films[i].id, filmCard);
-  };
-
-  #renderExtraFilms = () => {
-    for (let i = 0; i < EXTRA_FILMS_CARDS_AMOUNT; i++) {
-      this.filmsListExtraContainerComponent = new FilmsListContainerView();
-      this.#shownExtraFilmCards.push(this.filmsListExtraContainerComponent);
-      this.filmsListExtraSectionComponent = new FilmsListExtraSectionView();
-      render(this.filmsListExtraSectionComponent, this.#filmsMainContainerComponent.element);
-      render(this.filmsListExtraContainerComponent, this.filmsListExtraSectionComponent.element);
-      for (let j = 0; j < EXTRA_FILMS_CARDS_AMOUNT; j++) {
-        this.#renderFilmCard(this.#films.length - EXTRA_FILMS_CARDS_AMOUNT, this.#films, this.#comments, this.filmsListExtraContainerComponent);
-      }
-    }
   };
 
   #onShowMoreButtonClick = (films = this.#films) => {

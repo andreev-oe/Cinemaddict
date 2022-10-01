@@ -1,10 +1,14 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-const createSortElement = () => `<ul class="sort">
+const createSortElement = (films) => {
+  if (films) {
+    return `<ul class="sort">
     <li><a href="#" class="sort__button sort__button--default sort__button--active">Sort by default</a></li>
     <li><a href="#" class="sort__button sort__button--date">Sort by date</a></li>
     <li><a href="#" class="sort__button sort__button--rating">Sort by rating</a></li>
   </ul>`;
+  }
+};
 
 export default class FilmsSortView extends AbstractView {
   #films = null;
@@ -20,14 +24,10 @@ export default class FilmsSortView extends AbstractView {
     super();
     this.#films = films;
     this.#srcFilms = films;
-    this.#defaultSortButton = this.element.querySelector('.sort__button--default');
-    this.#dateSortButton = this.element.querySelector('.sort__button--date');
-    this.#ratingSortButton = this.element.querySelector('.sort__button--rating');
-    this.#sortButtons = this.element.children;
   }
 
   get template () {
-    return createSortElement();
+    return createSortElement(this.#films);
   }
 
   get showedFilms () {
@@ -68,6 +68,10 @@ export default class FilmsSortView extends AbstractView {
     this._callback.filmsInit = init;
     this.#shownFilmCards = shownFilmCards;
     this.#films = filteredFilms;
+    this.#defaultSortButton = this.element.querySelector('.sort__button--default');
+    this.#dateSortButton = this.element.querySelector('.sort__button--date');
+    this.#ratingSortButton = this.element.querySelector('.sort__button--rating');
+    this.#sortButtons = this.element.children;
     this.#defaultSortButton.addEventListener('click', this.#onDefaultSortButtonClick);
     this.#dateSortButton.addEventListener('click', this.#onDaySortButtonClick);
     this.#ratingSortButton.addEventListener('click', this.#onRatingSortButtonClick);
