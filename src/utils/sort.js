@@ -1,6 +1,14 @@
-const sortByDefault = (model, element, cssClass) => {
+const sortByDefault = (srcFilms, model, element, cssClass) => {
   element.classList.add(cssClass);
-  return model;
+  const sortedModel = [];
+  srcFilms.forEach((srcFilm) => {
+    model.forEach((film) => {
+      if (film.id === srcFilm.id) {
+        sortedModel.push(srcFilm);
+      }
+    });
+  });
+  return sortedModel;
 };
 
 const sortByDay = (model, element, cssClass) => {

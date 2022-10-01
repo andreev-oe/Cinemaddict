@@ -1,5 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import dayjs from 'dayjs';
+import he from 'he';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(duration);
@@ -18,14 +19,14 @@ const createCommentElement = (commentsId, commentsText) => {
   for (let i = 0; i < filteredComments.length; i++) {
     divElement.textContent += `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
-              <img src="./images/emoji/${commentsText[i].emotion}.png" width="55" height="55" alt="emoji-sleeping">
+              <img src="./images/emoji/${filteredComments[i].emotion}.png" width="55" height="55" alt="emoji-${filteredComments[i].emotion}">
             </span>
             <div>
-              <p class="film-details__comment-text">${filteredComments[i].comment}</p>
+              <p class="film-details__comment-text">${he.encode(filteredComments[i].comment)}</p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${filteredComments[i].author}</span>
                 <span class="film-details__comment-day">${dayjs(filteredComments[i].date).fromNow()}</span>
-                <button class="film-details__comment-delete">Delete</button>
+                <button class="film-details__comment-delete" data-comment-id = "${filteredComments[i].id}">Delete</button>
               </p>
             </div>
           </li>`;
@@ -220,9 +221,37 @@ export default class FilmPopupView extends AbstractStatefulView {
     const emojiInputs = this.element.querySelectorAll('.film-details__emoji-item');
     const setNewCommentEmoji = () => {
       const newCommentEmoji = this.element.querySelector('.film-details__add-emoji-label');
-      newCommentEmoji.innerHTML = `<img src="./images/emoji/${evt.target.alt}.png" width="55" height="55" alt="${evt.target.dataset.emojiName}">`;
+      newCommentEmoji.innerHTML = `<img src="./images/emoji/${evt.target.alt}.png" width="55" height="55" alt="${evt.target.alt}">`;
     };
     this._callback.onEmojiClick(evt, emojiInputs, setNewCommentEmoji);
+  };
+
+  #onCommentDeleteButtonClick = (evt) => {
+    evt.preventDefault();
+    this._callback.onCommentDeleteButtonClick(evt);
+  };
+
+  setOnCommentDeleteButtonClick = (eventListener) => {
+    this._callback.onCommentDeleteButtonClick = eventListener;
+    this.element.querySelectorAll('.film-details__comment-delete')
+      .forEach((deleteButton) => deleteButton.addEventListener('click', this.#onCommentDeleteButtonClick));
+  };
+
+  #onCommentAddButtonsPress = (evt) => {
+    if (evt.ctrlKey && evt.key === 'Enter') {
+      evt.preventDefault();
+      let selectedEmoji;
+      const selectedEmojiElement = this.element.querySelector('.film-details__add-emoji-label').firstChild;
+      if (selectedEmojiElement) {
+        selectedEmoji = selectedEmojiElement.alt;
+      }
+      this._callback.onCommentAddButtonPress(evt, selectedEmoji);
+    }
+  };
+
+  setOnCommentAddButtonsPress = (eventListener) => {
+    this._callback.onCommentAddButtonPress = eventListener;
+    this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#onCommentAddButtonsPress);
   };
 
   static parseFilmDataToState = (data) => ({...data});
@@ -238,4 +267,5 @@ export default class FilmPopupView extends AbstractStatefulView {
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#onClosePopupButtonClick);
     this.#setInnerHandlers();
   };
+
 }
