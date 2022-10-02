@@ -92,9 +92,9 @@ export default class FilmsPresenter {
   init = (films = this.#films) => {
     this.#films = films;
     this.#filterView = new FilterView(this.#srcFilms, this.#selectedFilter);
-    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
-    this.#filmSortView = new FilmsSortView(this.#films);
+    this.#filmSortView = new FilmsSortView(films);
     this.#filmSortView.films = films;
+    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
     this.#footerStatisticsView = new FooterStatisticsView(this.#srcFilms);
     this.#renderPage(films);
     document.body.addEventListener('click', this.#onControlButtonClick);
@@ -230,14 +230,16 @@ export default class FilmsPresenter {
     this.#filmPresenter.get(filmToUpdate.id).renderFilmCard(filmToUpdate);
   };
 
-  #handleModelEvent = (updateType) => {
+  #handleModelEvent = (updateType, film) => {
     switch (updateType) {
       case UpdateType.INIT:
         this.#srcFilms = this.#filmsModel.getFilms();
         this.init(this.#srcFilms);
         break;
       case UpdateType.PATCH:
-        this.init(this.#filmsModel.getFilms());
+        if (!this.#popupPresenter.popupClosedState) {
+          this.#popupPresenter.updatePopup(film);
+        }
         break;
     }
   };

@@ -24,9 +24,11 @@ export default class PopupPresenter {
   #popupClosed = true;
   #changeData = null;
   #film = null;
+  #commentsModel = null;
 
   constructor(filmsModel, commentsModel, mainContainer, changeData) {
     this.#films = [...filmsModel.getFilms()];
+    this.#commentsModel = commentsModel;
     this.#comments = [...commentsModel.getAllComments()];
     this.#mainContainer = mainContainer;
     this.#filmPopup = null;
@@ -56,8 +58,10 @@ export default class PopupPresenter {
       if (this.#filmPopup) {
         this.destroy();
       }
+      this.#film = this.#films[evt.target.dataset.filmId];
       this.renderPopup(evt);
       this.#popupClosed = false;
+      this.#commentsModel.init(UpdateType.PATCH, this.#film);
     }
   };
 
@@ -73,8 +77,8 @@ export default class PopupPresenter {
   };
 
   renderPopup = (evt) => {
+    this.#comments = this.#commentsModel.getAllComments();
     this.#evt = evt;
-    this.#film = this.#films[evt.target.dataset.filmId];
     const prevPopupView = this.#filmPopup;
     this.#filmPopup = new FilmPopupView(this.#film, this.#comments);
     this.#filmPopup.setOnAddToFavoritesButtonClick(this.#onAddToFavoritesButtonClick);

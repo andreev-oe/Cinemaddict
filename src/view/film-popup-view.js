@@ -8,25 +8,18 @@ dayjs.extend(relativeTime);
 
 const createCommentElement = (commentsId, commentsText) => {
   const divElement = document.createElement('div');
-  const filteredComments = commentsText.filter((comment) => {
-    for (let i = 0; i < commentsId.length; i++) {
-      if (comment.id === commentsId[i]) {
-        return true;
-      }
-    }
-  });
 
-  for (let i = 0; i < filteredComments.length; i++) {
+  for (let i = 0; i < commentsText.length; i++) {
     divElement.textContent += `<li class="film-details__comment">
             <span class="film-details__comment-emoji">
-              <img src="./images/emoji/${filteredComments[i].emotion}.png" width="55" height="55" alt="emoji-${filteredComments[i].emotion}">
+              <img src="./images/emoji/${commentsText[i].emotion}.png" width="55" height="55" alt="emoji-${commentsText[i].emotion}">
             </span>
             <div>
-              <p class="film-details__comment-text">${he.encode(filteredComments[i].comment)}</p>
+              <p class="film-details__comment-text">${he.encode(commentsText[i].comment)}</p>
               <p class="film-details__comment-info">
-                <span class="film-details__comment-author">${filteredComments[i].author}</span>
-                <span class="film-details__comment-day">${dayjs(filteredComments[i].date).fromNow()}</span>
-                <button class="film-details__comment-delete" data-comment-id = "${filteredComments[i].id}">Delete</button>
+                <span class="film-details__comment-author">${commentsText[i].author}</span>
+                <span class="film-details__comment-day">${dayjs(commentsText[i].date).fromNow()}</span>
+                <button class="film-details__comment-delete" data-comment-id = "${commentsText[i].id}">Delete</button>
               </p>
             </div>
           </li>`;
