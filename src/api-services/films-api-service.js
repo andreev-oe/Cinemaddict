@@ -33,7 +33,8 @@ export default class FilmsApiService extends ApiService {
         alternativeTitle: film.film_info.alternative_title,
         totalRating: film.film_info.total_rating,
         release: {
-          releaseCountry: film.film_info.release.release_country
+          releaseCountry: film.film_info.release.release_country,
+          date: film.film_info.release.date
         },
       },
       userDetails: {

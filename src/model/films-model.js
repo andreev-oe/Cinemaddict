@@ -1,4 +1,3 @@
-import {UpdateType} from '../constants.js';
 import Observable from '../framework/observable.js';
 
 export default class FilmsModel extends Observable{
@@ -23,13 +22,13 @@ export default class FilmsModel extends Observable{
     this._notify(updateType, newFilmData);
   }
 
-  init = async () => {
+  init = async (updateType) => {
     try {
       const films = await this.#filmsApiService.films;
       this.#films = films.map(this.#filmsApiService.adaptToClient);
     } catch(err) {
       this.#films = [];
     }
-    this._notify(UpdateType.INIT);
+    this._notify(updateType);
   };
 }

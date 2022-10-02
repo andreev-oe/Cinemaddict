@@ -1,5 +1,5 @@
 import {
-  FILMS_PORTION, FilterType,
+  FILMS_PORTION, FilterType, UpdateType,
   UserAction
 } from '../constants.js';
 import PopupPresenter from './popup-presenter.js';
@@ -59,13 +59,12 @@ export default class FilmsPresenter {
     this.#filterModel = filterModel;
     this.#films = [...this.#filmsModel.getFilms()];
     this.#comments = [...this.#commentsModel.getAllComments()];
-    this.#filmSortView = new FilmsSortView(this.#films);
-    this.#filterView = new FilterView(this.#films, this.#selectedFilter);
-    this.#footerStatisticsView = new FooterStatisticsView(this.#films);
     this.#profileView = new ProfileView();
-    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
     this.#showMoreButtonPresenter = new ShowMoreButtonPresenter();
     this.#filmPresenter = new Map();
+    this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#commentsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get films () {
@@ -90,7 +89,11 @@ export default class FilmsPresenter {
 
   init = (films = this.#films) => {
     this.#films = films;
+    this.#filterView = new FilterView(this.#films, this.#selectedFilter);
+    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
+    this.#filmSortView = new FilmsSortView(this.#films);
     this.#filmSortView.films = films;
+    this.#footerStatisticsView = new FooterStatisticsView(this.#films);
     this.#renderPage(films);
     document.body.addEventListener('click', this.#onControlButtonClick);
   };
@@ -222,5 +225,16 @@ export default class FilmsPresenter {
   #updateFilm = (filmToUpdate) => {
     this.#films = updateFilm(this.#filmsModel.getFilms(), filmToUpdate);
     this.#filmPresenter.get(filmToUpdate.id).renderFilmCard(filmToUpdate);
+  };
+
+  #handleModelEvent = (updateType) => {
+    switch (updateType) {
+      case UpdateType.INIT:
+        this.init(this.#filmsModel.getFilms());
+        break;
+      case UpdateType.PATCH:
+        this.init(this.#filmsModel.getFilms());
+        break;
+    }
   };
 }
