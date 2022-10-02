@@ -37,6 +37,7 @@ export default class FilmsPresenter {
   #footerStatisticsView = null;
   #profileView = null;
   #films = null;
+  #srcFilms = null;
   #comments = null;
   #filmSortView = null;
   #filterView = null;
@@ -58,6 +59,7 @@ export default class FilmsPresenter {
     this.#commentsModel = commentsModel;
     this.#filterModel = filterModel;
     this.#films = [...this.#filmsModel.getFilms()];
+    this.#srcFilms = [...this.#filmsModel.getFilms()];
     this.#comments = [...this.#commentsModel.getAllComments()];
     this.#profileView = new ProfileView();
     this.#showMoreButtonPresenter = new ShowMoreButtonPresenter();
@@ -89,11 +91,11 @@ export default class FilmsPresenter {
 
   init = (films = this.#films) => {
     this.#films = films;
-    this.#filterView = new FilterView(this.#films, this.#selectedFilter);
+    this.#filterView = new FilterView(this.#srcFilms, this.#selectedFilter);
     this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
     this.#filmSortView = new FilmsSortView(this.#films);
     this.#filmSortView.films = films;
-    this.#footerStatisticsView = new FooterStatisticsView(this.#films);
+    this.#footerStatisticsView = new FooterStatisticsView(this.#srcFilms);
     this.#renderPage(films);
     document.body.addEventListener('click', this.#onControlButtonClick);
   };
@@ -122,7 +124,7 @@ export default class FilmsPresenter {
   #onControlButtonClick = (evt) =>{
     if (evt.target.dataset.button) {
       const i = evt.target.parentNode.dataset.filmId;
-      this.#updateFilm(this.#films.find((film) => film.id === Number(i)));
+      this.#updateFilm(this.#films.find((film) => film.id === i));
       const prevFilterView = this.#filterView;
       this.#filterView = new FilterView(this.#films, this.#selectedFilter);
       replace(this.#filterView, prevFilterView);
@@ -133,7 +135,8 @@ export default class FilmsPresenter {
         this.#filterModel.filterHistory,
         this.#filterModel.filterFavorites,
         this.#shownFilteredFilmCards,
-        this
+        this,
+        this.#filmSortView.defaultSort
       );
       if (!this.#popupPresenter.popupClosedState) {
         this.#popupPresenter.updatePopup(this.#films[i]);
@@ -230,7 +233,8 @@ export default class FilmsPresenter {
   #handleModelEvent = (updateType) => {
     switch (updateType) {
       case UpdateType.INIT:
-        this.init(this.#filmsModel.getFilms());
+        this.#srcFilms = this.#filmsModel.getFilms();
+        this.init(this.#srcFilms);
         break;
       case UpdateType.PATCH:
         this.init(this.#filmsModel.getFilms());
