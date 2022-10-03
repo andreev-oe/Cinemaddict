@@ -107,14 +107,29 @@ export default class PopupPresenter {
 
   #onAddToFavoritesButtonClick = (film) => {
     film.userDetails.favorite = !film.userDetails.favorite;
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      film,
+    );
   };
 
   #onAddToWatchedButtonClick = (film) => {
     film.userDetails.alreadyWatched = !film.userDetails.alreadyWatched;
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      film,
+    );
   };
 
   #onAddToWatchButtonClick = (film) => {
     film.userDetails.watchlist = !film.userDetails.watchlist;
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      film,
+    );
   };
 
   #onEmojiClick = (evt, emojiInputs, setNewCommentEmoji) => {
@@ -127,7 +142,7 @@ export default class PopupPresenter {
   };
 
   #onDeleteCommentButtonClick = (evt) => {
-    const commentId = Number(evt.target.dataset.commentId);
+    const commentId = evt.target.dataset.commentId;
     const commentIdIndex = this.#film.comments.findIndex((comment) => comment === commentId);
     const commentToDelete = this.#comments.find((comment) => comment.id === commentId);
     this.#changeData(
@@ -145,7 +160,7 @@ export default class PopupPresenter {
 
   #onCommentAddButtonsPress = (evt, selectedEmoji = DEFAULT_EMOJI) => {
     const commentToAdd = {
-      id: Number(nanoid()),
+      id: nanoid(),
       author: 'defaultUser',
       comment: evt.target.value,
       date: dayjs(),

@@ -100,50 +100,43 @@ export default class FilmsPresenter {
     this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
     this.#popupPresenter.setScrollPosition = 0;
     this.#renderPage(films);
-    document.body.addEventListener('click', this.#onControlButtonClick);
   };
 
-  #userActionHandler = (actionType, updateType, filmData, commentData) => {
+  #userActionHandler = async (actionType, updateType, filmData, commentData) => {
+    const prevFilterView = this.#filterView;
     switch (actionType) {
       case UserAction.UPDATE_FILM:
-        this.#filmsModel.updateFilms(updateType, filmData);
+        await this.#filmsModel.updateFilm(updateType, filmData);
         this.#updateFilm(filmData);
+        this.#films = this.#filmsModel.getFilms();
+        this.#filterView = new FilterView(this.#films, this.#selectedFilter);
+        replace(this.#filterView, prevFilterView);
+        remove(prevFilterView);
+        this.#filterView.setFilterButtonsHandlers(
+          this.#filterModel.filterAll,
+          this.#filterModel.filterWatchList,
+          this.#filterModel.filterHistory,
+          this.#filterModel.filterFavorites,
+          this.#shownFilteredFilmCards,
+          this,
+          this.#filmSortView.defaultSort
+        );
+        if (!this.#popupPresenter.popupClosedState) {
+          this.#popupPresenter.updatePopup(filmData);
+        }
         break;
       case UserAction.ADD_COMMENT:
         this.#commentsModel.addComment(updateType, commentData);
-        this.#filmsModel.updateFilms(updateType, filmData);
+        await this.#filmsModel.updateFilm(updateType, filmData);
         this.#updateFilm(filmData);
         this.#popupPresenter.updatePopup(filmData);
         break;
       case UserAction.DELETE_COMMENT:
         this.#commentsModel.deleteComment(updateType, commentData);
-        this.#filmsModel.updateFilms(updateType, filmData);
+        await this.#filmsModel.updateFilm(updateType, filmData);
         this.#updateFilm(filmData);
         this.#popupPresenter.updatePopup(filmData);
         break;
-    }
-  };
-
-  #onControlButtonClick = (evt) =>{
-    if (evt.target.dataset.button) {
-      const i = evt.target.parentNode.dataset.filmId;
-      this.#updateFilm(this.#films.find((film) => film.id === i));
-      const prevFilterView = this.#filterView;
-      this.#filterView = new FilterView(this.#films, this.#selectedFilter);
-      replace(this.#filterView, prevFilterView);
-      remove(prevFilterView);
-      this.#filterView.setFilterButtonsHandlers(
-        this.#filterModel.filterAll,
-        this.#filterModel.filterWatchList,
-        this.#filterModel.filterHistory,
-        this.#filterModel.filterFavorites,
-        this.#shownFilteredFilmCards,
-        this,
-        this.#filmSortView.defaultSort
-      );
-      if (!this.#popupPresenter.popupClosedState) {
-        this.#popupPresenter.updatePopup(this.#films[i]);
-      }
     }
   };
 
@@ -218,7 +211,7 @@ export default class FilmsPresenter {
   };
 
   #renderFilmCard = (i, films = this.#films, comments = this.#comments, container = this.#filmContainerComponent) => {
-    const filmCard = new FilmCardPresenter(films[i], comments[i], container.element);
+    const filmCard = new FilmCardPresenter(films[i], comments[i], container.element, this.#userActionHandler);
     this.#shownFilteredFilmCards.push(filmCard);
     this.#shownSortedFilmCards.push(filmCard);
     filmCard.renderFilmCard(films[i]);

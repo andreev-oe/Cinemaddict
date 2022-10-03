@@ -15,19 +15,26 @@ export default class FilmsModel extends Observable{
     return this.#films;
   }
 
-  updateFilms (updateType, newFilmData) {
-    this.#films.forEach((film) => {
-      if(film.id === newFilmData.id) {
-        film = newFilmData;
-      }
-    });
+  updateFilm = async (updateType, newFilmData) => {
+    const index = this.#films.findIndex((film) => film.id === newFilmData.id);
+    try {
+      const film = await this.#filmsApiService.updateFilms(newFilmData);
+      const adaptedFilm = this.#filmsApiService.adaptToClient(film);
+      this.#films = [
+        ...this.#films.slice(0, index),
+        adaptedFilm,
+        ...this.#films.slice(index + 1),
+      ];
+    } catch(err) {
+      this.#films = [];
+    }
     this._notify(updateType, newFilmData);
-  }
+  };
 
   init = async (updateType) => {
     try {
       const films = await this.#filmsApiService.films;
-      this.#films = films.map(this.#filmsApiService.adaptToClient);
+      this.#films = films.map((film) => this.#filmsApiService.adaptToClient(film));
     } catch(err) {
       this.#films = [];
     }

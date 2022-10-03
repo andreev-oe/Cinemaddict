@@ -11,18 +11,14 @@ export default class FilmsApiService extends ApiService {
       .then(ApiService.parseResponse);
   }
 
-  updateFilms = async (film) => {
-    const response = await this._load({
+  updateFilms (film) {
+    return this._load({
       url: `movies/${film.id}`,
       method: Method.PUT,
-      body: JSON.stringify(this.adaptToClient(film)),
+      body: JSON.stringify(this.adaptToServer(film)),
       headers: new Headers({'Content-Type': 'application/json'}),
-    });
-
-    const parsedResponse = await ApiService.parseResponse(response);
-
-    return parsedResponse;
-  };
+    }).then(ApiService.parseResponse);
+  }
 
   adaptToClient = (film) => {
     const adaptedFilm = {
@@ -52,6 +48,36 @@ export default class FilmsApiService extends ApiService {
     delete adaptedFilm.userDetails.already_watched;
     delete adaptedFilm.userDetails.watching_date;
 
+    return adaptedFilm;
+  };
+
+  adaptToServer = (film) => {
+    const adaptedFilm = {
+      ...film,
+      'film_info': {
+        ...film.filmInfo,
+        'age_rating': film.filmInfo.ageRating,
+        'alternative_title': film.filmInfo.alternativeTitle,
+        'total_rating': film.filmInfo.totalRating,
+        release: {
+          'release_country': film.filmInfo.release.releaseCountry,
+          'date': film.filmInfo.release.date
+        },
+      },
+      'user_details': {
+        ...film.userDetails,
+        'already_watched': film.userDetails.alreadyWatched,
+        'watching_date': film.userDetails.watchingDate,
+      },
+    };
+    delete adaptedFilm.filmInfo;
+    delete adaptedFilm.userDetails;
+    delete adaptedFilm.film_info.ageRating;
+    delete adaptedFilm.film_info.alternativeTitle;
+    delete adaptedFilm.film_info.totalRating;
+    delete adaptedFilm.film_info.release.releaseCountry;
+    delete adaptedFilm.user_details.alreadyWatched;
+    delete adaptedFilm.user_details.watchingDate;
     return adaptedFilm;
   };
 }

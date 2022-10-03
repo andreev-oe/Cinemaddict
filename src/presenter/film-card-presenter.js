@@ -4,29 +4,47 @@ import {
   render,
   replace
 } from '../framework/render.js';
+import {UpdateType, UserAction} from '../constants.js';
 
 export default class FilmCardPresenter {
   #film = null;
   #comment = null;
   #filmContainerComponent = null;
   #filmCardView = null;
+  #changeData;
 
-  constructor(film, comment, filmContainerComponent) {
+  constructor(film, comment, filmContainerComponent, changeData) {
     this.#film = film;
     this.#comment = comment;
     this.#filmContainerComponent = filmContainerComponent;
+    this.#changeData = changeData;
   }
 
   #onAddToFavoritesButtonClick = (film) => {
     film.userDetails.favorite = !film.userDetails.favorite;
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      film,
+    );
   };
 
   #onAddToWatchedButtonClick = (film) => {
     film.userDetails.watchlist = !film.userDetails.watchlist;
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      film,
+    );
   };
 
   #onAddToWatchButtonClick = (film) => {
     film.userDetails.alreadyWatched = !film.userDetails.alreadyWatched;
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      film,
+    );
   };
 
   renderFilmCard = (filmToUpdate = this.#film) => {
