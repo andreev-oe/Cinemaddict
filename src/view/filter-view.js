@@ -23,6 +23,7 @@ const countNavItems = (films) => {
 
 export default class FilterView extends AbstractView {
   #films = null;
+  #filmsModel = null;
   #items = null;
   #filteredFilms = null;
   #activeButtonClass = 'main-navigation__item--active';
@@ -35,9 +36,10 @@ export default class FilterView extends AbstractView {
   #filmsPresenter = null;
   #selectedFilter = FilterType.ALL;
 
-  constructor(films, selectedFilter) {
+  constructor(srcFilms, films, selectedFilter, filmsModel) {
     super();
-    this.#films = films;
+    this.#filmsModel = filmsModel;
+    this.#films = this.#filmsModel.getFilms();
     this.#items = null;
     this.#selectedFilter = selectedFilter;
     this.#filteredFilms = films;
@@ -102,7 +104,7 @@ export default class FilterView extends AbstractView {
     this.#filmsPresenter.films = filteredFilms;
     this.#filmsPresenter.init(filteredFilms);
     this.#filteredFilms = filteredFilms;
-    this.createNavigationElement(this.#filteredFilms, this.#filmsPresenter.filter);
+    this.createNavigationElement(this.#films, this.#filmsPresenter.filter);
     this._callback.defaultSort(evt);
   };
 
@@ -117,7 +119,7 @@ export default class FilterView extends AbstractView {
     this.#filmsPresenter.films = filteredFilms;
     this.#filmsPresenter.init(filteredFilms);
     this.#filteredFilms = filteredFilms;
-    this.createNavigationElement(this.#filteredFilms, this.#filmsPresenter.filter);
+    this.createNavigationElement(this.#films, this.#filmsPresenter.filter);
     this._callback.defaultSort(evt);
   };
 
@@ -132,7 +134,7 @@ export default class FilterView extends AbstractView {
     this.#filmsPresenter.films = filteredFilms;
     this.#filmsPresenter.init(filteredFilms);
     this.#filteredFilms = filteredFilms;
-    this.createNavigationElement(this.#filteredFilms, this.#filmsPresenter.filter);
+    this.createNavigationElement(this.#films, this.#filmsPresenter.filter);
     this._callback.defaultSort(evt);
   };
 
@@ -147,12 +149,12 @@ export default class FilterView extends AbstractView {
     this.#filmsPresenter.films = filteredFilms;
     this.#filmsPresenter.init(filteredFilms);
     this.#filteredFilms = filteredFilms;
-    this.createNavigationElement(this.#filteredFilms, this.#filmsPresenter.filter);
+    this.createNavigationElement(this.#films, this.#filmsPresenter.filter);
     this._callback.defaultSort(evt);
   };
 
   get template () {
-    return this.createNavigationElement(this.#filteredFilms, this.#selectedFilter);
+    return this.createNavigationElement(this.#films, this.#selectedFilter);
   }
 
   get films () {

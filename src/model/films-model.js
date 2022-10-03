@@ -18,7 +18,7 @@ export default class FilmsModel extends Observable{
   updateFilm = async (updateType, newFilmData) => {
     const index = this.#films.findIndex((film) => film.id === newFilmData.id);
     try {
-      const film = await this.#filmsApiService.updateFilms(newFilmData);
+      const film = await this.#filmsApiService.updateFilm(newFilmData);
       const adaptedFilm = this.#filmsApiService.adaptToClient(film);
       this.#films = [
         ...this.#films.slice(0, index),

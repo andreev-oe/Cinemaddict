@@ -3,7 +3,6 @@ import {
   remove,
   render
 } from '../framework/render.js';
-import {updateFilm} from '../utils/utilities.js';
 import {
   UpdateType,
   UserAction,
@@ -24,11 +23,13 @@ export default class PopupPresenter {
   #popupClosed = true;
   #changeData = null;
   #film = null;
+  #filmsModel = null;
   #commentsModel = null;
   #scrollTop = null;
 
   constructor(filmsModel, commentsModel, mainContainer, changeData) {
     this.#films = [...filmsModel.getFilms()];
+    this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
     this.#comments = [...commentsModel.getAllComments()];
     this.#mainContainer = mainContainer;
@@ -56,6 +57,7 @@ export default class PopupPresenter {
 
   onFilmImgClick = (evt) => {
     if (evt.target.nodeName === 'IMG' && evt.target.dataset.filmId){
+      this.#films = this.#filmsModel.getFilms();
       if (this.#filmPopupView) {
         this.destroy();
       }
@@ -70,9 +72,9 @@ export default class PopupPresenter {
     return this.#popupClosed;
   }
 
-  updatePopup = (popupToUpdate) => {
+  updatePopup = () => {
     if (this.#filmPopupView !== null) {
-      this.#films = updateFilm(this.#films, popupToUpdate);
+      this.#films = this.#filmsModel.getFilms();
       this.renderPopup(this.#evt);
     }
   };

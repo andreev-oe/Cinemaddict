@@ -1,6 +1,4 @@
-const FILM_CARDS_AMOUNT = 12;
 const FILMS_PORTION = 5;
-const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 const DEFAULT_EMOJI = 'smile';
 const FilterType = {
   ALL: 'all',
@@ -21,9 +19,7 @@ const UserAction = {
 };
 
 export {
-  FILM_CARDS_AMOUNT,
   FILMS_PORTION,
-  EMOTIONS,
   FilterType,
   UpdateType,
   UserAction,

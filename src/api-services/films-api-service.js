@@ -11,7 +11,7 @@ export default class FilmsApiService extends ApiService {
       .then(ApiService.parseResponse);
   }
 
-  updateFilms (film) {
+  updateFilm (film) {
     return this._load({
       url: `movies/${film.id}`,
       method: Method.PUT,
