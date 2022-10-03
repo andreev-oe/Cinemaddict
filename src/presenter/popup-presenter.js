@@ -25,6 +25,7 @@ export default class PopupPresenter {
   #changeData = null;
   #film = null;
   #commentsModel = null;
+  #scrollTop = null;
 
   constructor(filmsModel, commentsModel, mainContainer, changeData) {
     this.#films = [...filmsModel.getFilms()];
@@ -92,12 +93,15 @@ export default class PopupPresenter {
     if (prevPopupView === null) {
       document.body.classList.add('hide-overflow');
       render(this.#filmPopupView, this.#mainContainer);
+      this.#scrollTop = 0;
       return;
     }
     if (prevPopupView.element) {
+      this.#scrollTop = prevPopupView.element.scrollTop;
       document.body.classList.add('hide-overflow');
       render(this.#filmPopupView, this.#mainContainer);
     }
+    this.#filmPopupView.element.scrollTop = this.#scrollTop;
     remove(prevPopupView);
   };
 
@@ -148,7 +152,6 @@ export default class PopupPresenter {
       emotion: selectedEmoji,
     };
     this.#film.comments.push(commentToAdd.id);
-    this.#comments.push(commentToAdd);
     this.#changeData(
       UserAction.ADD_COMMENT,
       UpdateType.PATCH,
