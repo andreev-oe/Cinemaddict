@@ -20,6 +20,10 @@ export default class FilmCardPresenter {
     this.#changeData = changeData;
   }
 
+  get filmCardView () {
+    return this.#filmCardView;
+  }
+
   #onAddToFavoritesButtonClick = (film) => {
     film.userDetails.favorite = !film.userDetails.favorite;
     this.#changeData(

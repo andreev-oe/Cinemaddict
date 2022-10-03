@@ -107,11 +107,14 @@ export default class FilmsPresenter {
   };
 
   #userActionHandler = async (actionType, updateType, filmData, commentData) => {
-
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         await this.#filmsModel.updateFilm(updateType, filmData);
         this.#films = this.#filmsModel.getFilms();
+        if (!this.#films.length) {
+          this.#filmPresenter.get(filmData.id).filmCardView.shake();
+          return;
+        }
         this.#updateFilm(filmData);
         this.#filterView.setFilterButtonsHandlers(
           this.#filterModel.filterAll,

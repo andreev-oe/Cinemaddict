@@ -75,6 +75,10 @@ export default class PopupPresenter {
   updatePopup = () => {
     if (this.#filmPopupView !== null) {
       this.#films = this.#filmsModel.getFilms();
+      if (!this.#films.length) {
+        this.#filmPopupView.shakeAbsolute();
+        return;
+      }
       this.renderPopup(this.#evt);
     }
   };
