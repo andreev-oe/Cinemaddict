@@ -94,8 +94,11 @@ export default class FilmsPresenter {
     this.#filterView = new FilterView(this.#srcFilms, this.#selectedFilter);
     this.#filmSortView = new FilmsSortView(films);
     this.#filmSortView.films = films;
+    if (this.#popupPresenter) {
+      document.body.removeEventListener('click', this.#popupPresenter.onFilmImgClick);
+    }
     this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
-    this.#footerStatisticsView = new FooterStatisticsView(this.#srcFilms);
+    this.#popupPresenter.setScrollPosition = 0;
     this.#renderPage(films);
     document.body.addEventListener('click', this.#onControlButtonClick);
   };
@@ -149,6 +152,11 @@ export default class FilmsPresenter {
     render(this.#profileView, this.#headerContainer);
     render(this.#filterView, this.#mainContainer);
     render(this.#filmSortView, this.#mainContainer);
+    const prevFooterStatisticView = this.#footerStatisticsView;
+    if (prevFooterStatisticView) {
+      remove(prevFooterStatisticView);
+    }
+    this.#footerStatisticsView = new FooterStatisticsView(this.#srcFilms);
     render(this.#footerStatisticsView, this.#footerContainer);
     this.renderContent(films);
   };
