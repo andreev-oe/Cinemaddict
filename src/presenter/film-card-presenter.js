@@ -24,6 +24,8 @@ export default class FilmCardPresenter {
     return this.#filmCardView;
   }
 
+  destroy = () => remove(this.#filmCardView);
+
   #onAddToFavoritesButtonClick = (film) => {
     film.userDetails.favorite = !film.userDetails.favorite;
     this.#changeData(
@@ -69,6 +71,4 @@ export default class FilmCardPresenter {
     }
     remove(prevFilmCardView);
   };
-
-  destroy = () => remove(this.#filmCardView);
 }

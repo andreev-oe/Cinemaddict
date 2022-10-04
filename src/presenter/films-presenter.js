@@ -1,6 +1,8 @@
 import {
   DeleteButtonText,
-  FILMS_PORTION, FilterType, UpdateType,
+  FILMS_PORTION,
+  FilterType,
+  UpdateType,
   UserAction
 } from '../constants.js';
 import PopupPresenter from './popup-presenter.js';
@@ -25,7 +27,7 @@ import {
   sortByDay,
   sortByRating,
 } from '../utils/sort.js';
-import {UiBlockerLimits} from '../constants.js';
+import {UiBlockerLimit} from '../constants.js';
 
 export default class FilmsPresenter {
   #filmsMainContainerComponent = new FilmsContainerView();
@@ -52,7 +54,7 @@ export default class FilmsPresenter {
   #shownFilteredFilmCards = [];
   #shownSortedFilmCards = [];
   #selectedFilter = FilterType.ALL;
-  #uiBlocker = new UiBlocker(UiBlockerLimits.LOWER_LIMIT, UiBlockerLimits.UPPER_LIMIT);
+  #uiBlocker = new UiBlocker(UiBlockerLimit.LOWER_LIMIT, UiBlockerLimit.UPPER_LIMIT);
 
   constructor(headerContainer, mainContainer, footerContainer, filmsModel, commentsModel, filterModel) {
     this.#headerContainer = headerContainer;
@@ -61,9 +63,9 @@ export default class FilmsPresenter {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
     this.#filterModel = filterModel;
-    this.#films = [...this.#filmsModel.getFilms()];
-    this.#srcFilms = [...this.#filmsModel.getFilms()];
-    this.#comments = [...this.#commentsModel.getAllComments()];
+    this.#films = [...this.#filmsModel.films];
+    this.#srcFilms = [...this.#filmsModel.films];
+    this.#comments = [...this.#commentsModel.comments];
     this.#showMoreButtonPresenter = new ShowMoreButtonPresenter();
     this.#filmPresenter = new Map();
     this.#filmsModel.addObserver(this.#handleModelEvent);
@@ -116,8 +118,8 @@ export default class FilmsPresenter {
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         await this.#filmsModel.updateFilm(updateType, filmData);
-        this.#films = this.#filmsModel.getFilms();
-        this.#srcFilms = this.#filmsModel.getFilms();
+        this.#films = this.#filmsModel.films;
+        this.#srcFilms = this.#filmsModel.films;
         if (!this.#films.length) {
           this.#filmPresenter.get(filmData.id).filmCardView.shake();
           this.#uiBlocker.unblock();
@@ -163,13 +165,13 @@ export default class FilmsPresenter {
       case UserAction.ADD_COMMENT:
         await this.#commentsModel.addComment(updateType, commentData, filmData);
         await this.#filmsModel.updateFilm(updateType, filmData);
-        this.#films = this.#filmsModel.getFilms();
+        this.#films = this.#filmsModel.films;
         if (!this.#films.length) {
           this.#popupPresenter.popupView.setFormShake();
           this.#uiBlocker.unblock();
           return;
         }
-        filmToUpdate = this.#filmsModel.getFilms().find((film) => film.id === filmData.id);
+        filmToUpdate = this.#filmsModel.films.find((film) => film.id === filmData.id);
         this.#updateFilm(filmToUpdate);
         this.#popupPresenter.updatePopup();
         break;
@@ -177,14 +179,14 @@ export default class FilmsPresenter {
         this.#popupPresenter.commentDeleteBtn = DeleteButtonText.DELETING;
         await this.#commentsModel.deleteComment(updateType, commentData);
         await this.#filmsModel.updateFilm(updateType, filmData);
-        this.#films = this.#filmsModel.getFilms();
+        this.#films = this.#filmsModel.films;
         if (!this.#films.length) {
           this.#popupPresenter.commentDeleteBtn = DeleteButtonText.DELETE;
           this.#popupPresenter.popupView.setCommentShake();
           this.#uiBlocker.unblock();
           return;
         }
-        filmToUpdate = this.#filmsModel.getFilms().find((film) => film.id === filmData.id);
+        filmToUpdate = this.#filmsModel.films.find((film) => film.id === filmData.id);
         this.#updateFilm(filmToUpdate);
         this.#popupPresenter.updatePopup();
         break;
@@ -274,16 +276,8 @@ export default class FilmsPresenter {
     this.#filmPresenter.set(films[i].id, filmCard);
   };
 
-  #onShowMoreButtonClick = (films = this.#films) => {
-    films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film, index) => this.#renderFilmCard(index + this.#renderedFilmCards, films));
-    this.#renderedFilmCards += FILMS_PORTION;
-    if (this.#renderedFilmCards >= films.length) {
-      this.#showMoreButtonPresenter.destroy();
-    }
-  };
-
   #updateFilm = (filmToUpdate) => {
-    this.#films = this.#filmsModel.getFilms();
+    this.#films = this.#filmsModel.films;
     this.#filmPresenter.get(filmToUpdate.id).renderFilmCard(filmToUpdate);
   };
 
@@ -291,7 +285,7 @@ export default class FilmsPresenter {
     const prevFilterView = this.#filterView;
     switch (updateType) {
       case UpdateType.INIT:
-        this.#srcFilms = this.#filmsModel.getFilms();
+        this.#srcFilms = this.#filmsModel.films;
         this.init(this.#srcFilms);
         break;
       case UpdateType.PATCH:
@@ -312,6 +306,14 @@ export default class FilmsPresenter {
           this,
           this.#filmSortView.defaultSort);
         break;
+    }
+  };
+
+  #onShowMoreButtonClick = (films = this.#films) => {
+    films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film, index) => this.#renderFilmCard(index + this.#renderedFilmCards, films));
+    this.#renderedFilmCards += FILMS_PORTION;
+    if (this.#renderedFilmCards >= films.length) {
+      this.#showMoreButtonPresenter.destroy();
     }
   };
 }

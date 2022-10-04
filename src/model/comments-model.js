@@ -9,7 +9,7 @@ export default class CommentsModel extends Observable{
     this.#commentsApiService = commentsApiService;
   }
 
-  getAllComments () {
+  get comments () {
     return this.#comments;
   }
 

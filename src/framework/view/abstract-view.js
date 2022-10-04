@@ -64,6 +64,7 @@ export default class AbstractView {
 
 export {
   SHAKE_CLASS_NAME,
+  SHAKE_ANIMATION_TIMEOUT
 };
 
 /**

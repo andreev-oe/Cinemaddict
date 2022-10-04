@@ -9,7 +9,7 @@ export default class FilmsModel extends Observable{
     this.#filmsApiService = filmsApiService;
   }
 
-  getFilms () {
+  get films () {
     return this.#films;
   }
 

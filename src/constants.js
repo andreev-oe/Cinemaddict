@@ -32,7 +32,7 @@ const ProfileRatingGrade = {
   FAN: 20,
   MOVIE_BUFF: 21,
 };
-const UiBlockerLimits = {
+const UiBlockerLimit = {
   LOWER_LIMIT: 200,
   UPPER_LIMIT: 3000,
 };
@@ -53,6 +53,6 @@ export {
   MAX_DESCRIPTION_LENGTH,
   ProfileRating,
   ProfileRatingGrade,
-  UiBlockerLimits,
+  UiBlockerLimit,
   DeleteButtonText
 };

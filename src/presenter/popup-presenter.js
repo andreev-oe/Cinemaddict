@@ -28,10 +28,10 @@ export default class PopupPresenter {
   #isDeleteBtnPressed = null;
 
   constructor(filmsModel, commentsModel, mainContainer, changeData, UiBlocker) {
-    this.#films = [...filmsModel.getFilms()];
+    this.#films = [...filmsModel.films];
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
-    this.#comments = [...commentsModel.getAllComments()];
+    this.#comments = [...commentsModel.comments];
     this.#mainContainer = mainContainer;
     this.#filmPopupView = null;
     this.#popupPresenter = new Map();
@@ -51,43 +51,15 @@ export default class PopupPresenter {
     this.#deleteButton.textContent = comment;
   }
 
-  #onEscKeyDown = (evt) => {
-    if (evt.key === 'Escape') {
-      evt.preventDefault();
-      document.body.classList.remove('hide-overflow');
-      document.body.removeEventListener('keydown', this.#onEscKeyDown);
-      this.destroy();
-      this.#popupClosed = true;
-    }
-  };
-
-  #onClosePopupButtonClick = () => {
-    document.body.classList.remove('hide-overflow');
-    document.body.removeEventListener('keydown', this.#onEscKeyDown);
-    this.destroy();
-    this.#popupClosed = true;
-  };
-
-  onFilmImgClick = (evt) => {
-    if (evt.target.nodeName === 'IMG' && evt.target.dataset.filmId){
-      this.#films = this.#filmsModel.getFilms();
-      if (this.#filmPopupView) {
-        this.destroy();
-      }
-      this.#film = this.#films[evt.target.dataset.filmId];
-      this.renderPopup(evt);
-      this.#popupClosed = false;
-      this.#commentsModel.init(UpdateType.PATCH, this.#film);
-    }
-  };
-
   get popupClosedState () {
     return this.#popupClosed;
   }
 
+  destroy = () => remove(this.#filmPopupView);
+
   updatePopup = () => {
     if (this.#filmPopupView !== null) {
-      this.#films = this.#filmsModel.getFilms();
+      this.#films = this.#filmsModel.films;
       if (!this.#films.length) {
         this.#uiBlocker.unblock();
         if (!this.#isFormSubmit && !this.#isDeleteBtnPressed) {
@@ -100,9 +72,9 @@ export default class PopupPresenter {
   };
 
   renderPopup = (evt) => {
-    this.#films = this.#filmsModel.getFilms();
+    this.#films = this.#filmsModel.films;
     this.#film = this.#films[evt.target.dataset.filmId];
-    this.#comments = this.#commentsModel.getAllComments();
+    this.#comments = this.#commentsModel.comments;
     this.#evt = evt;
     const prevPopupView = this.#filmPopupView;
     this.#filmPopupView = new FilmPopupView(this.#film, this.#comments);
@@ -111,7 +83,7 @@ export default class PopupPresenter {
     this.#filmPopupView.setOnAddToWatchedButtonClick(this.#onAddToWatchButtonClick);
     this.#filmPopupView.setOnEmojiClick(this.#onEmojiClick);
     this.#filmPopupView.setOnCommentDeleteButtonClick(this.#onDeleteCommentButtonClick);
-    this.#filmPopupView.setOnCommentAddButtonsPress(this.#onCommentAddButtonsPress);
+    this.#filmPopupView.setOnFormSubmit(this.#onFormSubmit);
     document.body.addEventListener('keydown', this.#onEscKeyDown);
     this.#filmPopupView.setOnClosePopupButtonClick(this.#onClosePopupButtonClick);
     if (prevPopupView === null) {
@@ -190,7 +162,7 @@ export default class PopupPresenter {
     );
   };
 
-  #onCommentAddButtonsPress = (evt, selectedEmoji = DEFAULT_EMOJI) => {
+  #onFormSubmit = (evt, selectedEmoji = DEFAULT_EMOJI) => {
     this.#isFormSubmit = true;
     const commentToAdd = {
       comment: evt.target.value,
@@ -204,5 +176,33 @@ export default class PopupPresenter {
     );
   };
 
-  destroy = () => remove(this.#filmPopupView);
+  #onEscKeyDown = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      document.body.classList.remove('hide-overflow');
+      document.body.removeEventListener('keydown', this.#onEscKeyDown);
+      this.destroy();
+      this.#popupClosed = true;
+    }
+  };
+
+  #onClosePopupButtonClick = () => {
+    document.body.classList.remove('hide-overflow');
+    document.body.removeEventListener('keydown', this.#onEscKeyDown);
+    this.destroy();
+    this.#popupClosed = true;
+  };
+
+  onFilmImgClick = (evt) => {
+    if (evt.target.nodeName === 'IMG' && evt.target.dataset.filmId){
+      this.#films = this.#filmsModel.films;
+      if (this.#filmPopupView) {
+        this.destroy();
+      }
+      this.#film = this.#films[evt.target.dataset.filmId];
+      this.renderPopup(evt);
+      this.#popupClosed = false;
+      this.#commentsModel.init(UpdateType.PATCH, this.#film);
+    }
+  };
 }
