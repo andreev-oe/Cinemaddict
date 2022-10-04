@@ -22,8 +22,10 @@ export default class PopupPresenter {
   #filmsModel = null;
   #commentsModel = null;
   #scrollTop = null;
+  #uiBlocker = null;
+  #deleteButton = null;
 
-  constructor(filmsModel, commentsModel, mainContainer, changeData) {
+  constructor(filmsModel, commentsModel, mainContainer, changeData, UiBlocker) {
     this.#films = [...filmsModel.getFilms()];
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
@@ -32,6 +34,19 @@ export default class PopupPresenter {
     this.#filmPopupView = null;
     this.#popupPresenter = new Map();
     this.#changeData = changeData;
+    this.#uiBlocker = UiBlocker;
+  }
+
+  get popupView () {
+    return this.#filmPopupView;
+  }
+
+  get commentDeleteBtn () {
+    return this.#deleteButton.textContent;
+  }
+
+  set commentDeleteBtn (comment) {
+    this.#deleteButton.textContent = comment;
   }
 
   #onEscKeyDown = (evt) => {
@@ -73,6 +88,7 @@ export default class PopupPresenter {
       this.#films = this.#filmsModel.getFilms();
       if (!this.#films.length) {
         this.#filmPopupView.shakeAbsolute();
+        this.#uiBlocker.unblock();
         return;
       }
       this.renderPopup(this.#evt);
@@ -147,6 +163,7 @@ export default class PopupPresenter {
 
   #onDeleteCommentButtonClick = (evt) => {
     const commentId = evt.target.dataset.commentId;
+    this.#deleteButton = evt.target;
     const commentIdIndex = this.#film.comments.findIndex((comment) => comment === commentId);
     const commentToDelete = this.#comments.find((comment) => comment.id === commentId);
     this.#changeData(

@@ -20,7 +20,7 @@ export default class CommentsModel extends Observable{
       this.#comments = response.comments;
       this._notify(updateType, updatedFilm);
     } catch(err) {
-      throw new Error(err);
+      this.#comments = [];
     }
   };
 
@@ -37,7 +37,7 @@ export default class CommentsModel extends Observable{
       ];
       this._notify(updateType, commentData);
     } catch (e) {
-      throw new Error(e);
+      this.#comments = [];
     }
   };
 

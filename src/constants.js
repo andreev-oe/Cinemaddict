@@ -26,12 +26,20 @@ const ProfileRating = {
   FAN: 'Fan',
   MOVIE_BUFF: 'Movie Buff'
 };
-
 const ProfileRatingGrade = {
   NONE: 0,
   NOVICE : 10,
   FAN: 20,
   MOVIE_BUFF: 21,
+};
+const UiBlockerLimits = {
+  LOWER_LIMIT: 200,
+  UPPER_LIMIT: 3000,
+};
+
+const DeleteButtonText = {
+  DELETE: 'Delete',
+  DELETING: 'Deleting',
 };
 
 export {
@@ -44,5 +52,7 @@ export {
   ACTIVE_FILTER_BUTTON_CLASS,
   MAX_DESCRIPTION_LENGTH,
   ProfileRating,
-  ProfileRatingGrade
+  ProfileRatingGrade,
+  UiBlockerLimits,
+  DeleteButtonText
 };
