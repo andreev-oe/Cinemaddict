@@ -23,7 +23,7 @@ export default class PopupPresenter {
   #commentsModel = null;
   #scrollTop = null;
   #uiBlocker = null;
-  #deleteButton = null;
+  #commentId = null;
 
   constructor(filmsModel, commentsModel, mainContainer, changeData, UiBlocker) {
     this.#films = [...filmsModel.getFilms()];
@@ -42,11 +42,11 @@ export default class PopupPresenter {
   }
 
   get commentDeleteBtn () {
-    return this.#deleteButton.textContent;
+    return this.#commentId.textContent;
   }
 
   set commentDeleteBtn (comment) {
-    this.#deleteButton.textContent = comment;
+    this.#commentId.textContent = comment;
   }
 
   #onEscKeyDown = (evt) => {
@@ -163,7 +163,7 @@ export default class PopupPresenter {
 
   #onDeleteCommentButtonClick = (evt) => {
     const commentId = evt.target.dataset.commentId;
-    this.#deleteButton = evt.target;
+    this.#commentId = evt.target;
     const commentIdIndex = this.#film.comments.findIndex((comment) => comment === commentId);
     const commentToDelete = this.#comments.find((comment) => comment.id === commentId);
     this.#changeData(
