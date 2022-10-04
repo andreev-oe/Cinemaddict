@@ -1,7 +1,14 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import {MAX_DESCRIPTION_LENGTH} from '../constants.js';
 dayjs.extend(duration);
+
+const sliceDescription = (description) => {
+  if (description.length > MAX_DESCRIPTION_LENGTH) {
+    return `${description.slice(0, MAX_DESCRIPTION_LENGTH)}...`;
+  }
+};
 
 const createFilmCardElement = (film) => {
   const {title, description, release, poster, genre, runtime, totalRating} = film.filmInfo;
@@ -17,7 +24,7 @@ const createFilmCardElement = (film) => {
               <span class="film-card__genre">${genre[0]}</span>
             </p>
             <img src="${poster}" alt="" class="film-card__poster" data-film-id="${film.id}">
-            <p class="film-card__description">${description}</p>
+            <p class="film-card__description">${sliceDescription(description)}</p>
             <span class="film-card__comments">${length} comments</span>
           </a>
           <div class="film-card__controls" data-film-id="${film.id}">

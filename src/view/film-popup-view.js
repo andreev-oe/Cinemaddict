@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import he from 'he';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import {GENRES_MIN_LENGTH} from '../constants.js';
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
@@ -90,7 +91,7 @@ const createFilmPopupElement = (film, commentsText) => {
               <td class="film-details__cell">${release.releaseCountry}</td>
             </tr>
             <tr class="film-details__row">
-              <td class="film-details__term">Genres</td>
+              <td class="film-details__term">${genre.length <= GENRES_MIN_LENGTH ? 'Genre' : 'Genres'}</td>
               <td class="film-details__cell">
               ${createGenreElement(genre)}
             </tr>

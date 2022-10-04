@@ -60,7 +60,6 @@ export default class FilmsPresenter {
     this.#films = [...this.#filmsModel.getFilms()];
     this.#srcFilms = [...this.#filmsModel.getFilms()];
     this.#comments = [...this.#commentsModel.getAllComments()];
-    this.#profileView = new ProfileView();
     this.#showMoreButtonPresenter = new ShowMoreButtonPresenter();
     this.#filmPresenter = new Map();
     this.#filmsModel.addObserver(this.#handleModelEvent);
@@ -72,12 +71,12 @@ export default class FilmsPresenter {
     return this.#films;
   }
 
-  get comments () {
-    return this.#commentsModel.comments;
-  }
-
   set films (films) {
     this.#films = films;
+  }
+
+  get comments () {
+    return this.#commentsModel.comments;
   }
 
   get filter () {
@@ -108,13 +107,38 @@ export default class FilmsPresenter {
 
   #userActionHandler = async (actionType, updateType, filmData, commentData) => {
     let filmToUpdate = {};
+    const prevProfileView = this.#profileView;
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         await this.#filmsModel.updateFilm(updateType, filmData);
         this.#films = this.#filmsModel.getFilms();
+        this.#srcFilms = this.#filmsModel.getFilms();
         if (!this.#films.length) {
           this.#filmPresenter.get(filmData.id).filmCardView.shake();
           return;
+        }
+        if (prevProfileView) {
+          this.#profileView = new ProfileView(this.#srcFilms);
+          replace(this.#profileView, prevProfileView);
+        }
+        switch (this.#selectedFilter) {
+          case FilterType.ALL:
+            break;
+          case FilterType.HISTORY:
+            if (!filmData.userDetails.alreadyWatched) {
+              this.#filmPresenter.get(filmData.id).destroy();
+            }
+            break;
+          case FilterType.FAVOURITES:
+            if (!filmData.userDetails.favorite) {
+              this.#filmPresenter.get(filmData.id).destroy();
+            }
+            break;
+          case FilterType.WATCHLIST:
+            if (!filmData.userDetails.watchlist) {
+              this.#filmPresenter.get(filmData.id).destroy();
+            }
+            break;
         }
         this.#updateFilm(filmData);
         this.#filterView.setFilterButtonsHandlers(
@@ -149,6 +173,10 @@ export default class FilmsPresenter {
 
   #renderPage = (films = this.#films) => {
     this.#mainContainer.innerHTML = '';
+    if (this.#profileView) {
+      remove(this.#profileView);
+    }
+    this.#profileView = new ProfileView(this.#srcFilms);
     render(this.#profileView, this.#headerContainer);
     render(this.#filterView, this.#mainContainer);
     render(this.#filmSortView, this.#mainContainer);

@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {FilterType} from '../constants.js';
+import {ACTIVE_FILTER_BUTTON_CLASS, FilterType} from '../constants.js';
 
 const countNavItems = (films) => {
   const items = {
@@ -26,7 +26,7 @@ export default class FilterView extends AbstractView {
   #filmsModel = null;
   #items = null;
   #filteredFilms = null;
-  #activeButtonClass = 'main-navigation__item--active';
+  #activeButtonClass = ACTIVE_FILTER_BUTTON_CLASS;
   #filterAllButton = null;
   #filterWatchListButton = null;
   #filterHistoryButton = null;
