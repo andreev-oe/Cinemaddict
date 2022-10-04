@@ -23,7 +23,9 @@ export default class PopupPresenter {
   #commentsModel = null;
   #scrollTop = null;
   #uiBlocker = null;
-  #commentId = null;
+  #deleteButton = null;
+  #isFormSubmit = null;
+  #isDeleteBtnPressed = null;
 
   constructor(filmsModel, commentsModel, mainContainer, changeData, UiBlocker) {
     this.#films = [...filmsModel.getFilms()];
@@ -42,11 +44,11 @@ export default class PopupPresenter {
   }
 
   get commentDeleteBtn () {
-    return this.#commentId.textContent;
+    return this.#deleteButton.textContent;
   }
 
   set commentDeleteBtn (comment) {
-    this.#commentId.textContent = comment;
+    this.#deleteButton.textContent = comment;
   }
 
   #onEscKeyDown = (evt) => {
@@ -87,8 +89,10 @@ export default class PopupPresenter {
     if (this.#filmPopupView !== null) {
       this.#films = this.#filmsModel.getFilms();
       if (!this.#films.length) {
-        this.#filmPopupView.shakeAbsolute();
         this.#uiBlocker.unblock();
+        if (!this.#isFormSubmit && !this.#isDeleteBtnPressed) {
+          this.#filmPopupView.setControlButtonsShake();
+        }
         return;
       }
       this.renderPopup(this.#evt);
@@ -126,6 +130,8 @@ export default class PopupPresenter {
   };
 
   #onAddToFavoritesButtonClick = (film) => {
+    this.#isFormSubmit = false;
+    this.#isDeleteBtnPressed = false;
     film.userDetails.favorite = !film.userDetails.favorite;
     this.#changeData(
       UserAction.UPDATE_FILM,
@@ -135,6 +141,8 @@ export default class PopupPresenter {
   };
 
   #onAddToWatchedButtonClick = (film) => {
+    this.#isFormSubmit = false;
+    this.#isDeleteBtnPressed = false;
     film.userDetails.alreadyWatched = !film.userDetails.alreadyWatched;
     this.#changeData(
       UserAction.UPDATE_FILM,
@@ -144,6 +152,8 @@ export default class PopupPresenter {
   };
 
   #onAddToWatchButtonClick = (film) => {
+    this.#isFormSubmit = false;
+    this.#isDeleteBtnPressed = false;
     film.userDetails.watchlist = !film.userDetails.watchlist;
     this.#changeData(
       UserAction.UPDATE_FILM,
@@ -162,8 +172,9 @@ export default class PopupPresenter {
   };
 
   #onDeleteCommentButtonClick = (evt) => {
+    this.#isDeleteBtnPressed = true;
     const commentId = evt.target.dataset.commentId;
-    this.#commentId = evt.target;
+    this.#deleteButton = evt.target;
     const commentIdIndex = this.#film.comments.findIndex((comment) => comment === commentId);
     const commentToDelete = this.#comments.find((comment) => comment.id === commentId);
     this.#changeData(
@@ -180,6 +191,7 @@ export default class PopupPresenter {
   };
 
   #onCommentAddButtonsPress = (evt, selectedEmoji = DEFAULT_EMOJI) => {
+    this.#isFormSubmit = true;
     const commentToAdd = {
       comment: evt.target.value,
       emotion: selectedEmoji,

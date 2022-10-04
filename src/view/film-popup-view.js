@@ -4,6 +4,7 @@ import he from 'he';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {GENRES_MIN_LENGTH} from '../constants.js';
+import {SHAKE_CLASS_NAME} from '../framework/view/abstract-view.js';
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
@@ -11,7 +12,7 @@ const createCommentElement = (commentsId, commentsText) => {
   const divElement = document.createElement('div');
 
   for (let i = 0; i < commentsText.length; i++) {
-    divElement.textContent += `<li class="film-details__comment">
+    divElement.textContent += `<li class="film-details__comment comment-id-${commentsText[i].id}">
             <span class="film-details__comment-emoji">
               <img src="./images/emoji/${commentsText[i].emotion}.png" width="55" height="55" alt="emoji-${commentsText[i].emotion}">
             </span>
@@ -158,11 +159,16 @@ export default class FilmPopupView extends AbstractStatefulView {
     super();
     this._state.film = FilmPopupView.parseFilmDataToState(film);
     this._state.commentsText = FilmPopupView.parseFilmCommentsToState(commentsText);
+    this._state.commentToDelete = null;
     this.#setInnerHandlers();
   }
 
   get template () {
     return createFilmPopupElement(this._state.film, this._state.commentsText);
+  }
+
+  get commentToDelete () {
+    return this._state.commentToDelete;
   }
 
   setOnClosePopupButtonClick = (callback) => {
@@ -222,6 +228,7 @@ export default class FilmPopupView extends AbstractStatefulView {
 
   #onCommentDeleteButtonClick = (evt) => {
     evt.preventDefault();
+    this._state.commentToDelete = this.element.querySelector(`.comment-id-${evt.target.dataset.commentId}`);
     this._callback.onCommentDeleteButtonClick(evt);
   };
 
@@ -260,6 +267,37 @@ export default class FilmPopupView extends AbstractStatefulView {
   _restoreHandlers = () => {
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#onClosePopupButtonClick);
     this.#setInnerHandlers();
+  };
+
+  setControlButtonsShake = () => {
+    this.element.querySelector('.film-details__controls').classList.add(SHAKE_CLASS_NAME);
+
+    setTimeout(() => {
+      this.element.querySelector('.film-details__controls').classList.remove(SHAKE_CLASS_NAME);
+    }, 600);
+  };
+
+  setCommentShake = () => {
+    this._state.commentToDelete.classList.add(SHAKE_CLASS_NAME);
+
+    setTimeout(() => {
+      this._state.commentToDelete.classList.remove(SHAKE_CLASS_NAME);
+    }, 600);
+  };
+
+  setFormShake = () => {
+    const formElement = this.element.querySelector('.film-details__new-comment');
+    const formInputElement = formElement.querySelector('.film-details__comment-input');
+
+    formElement.classList.add(SHAKE_CLASS_NAME);
+    formElement.setAttribute('disabled', 'disabled');
+    formInputElement.setAttribute('disabled', 'disabled');
+
+    setTimeout(() => {
+      formElement.classList.remove(SHAKE_CLASS_NAME);
+      formElement.removeAttribute('disabled');
+      formInputElement.removeAttribute('disabled');
+    }, 600);
   };
 
 }

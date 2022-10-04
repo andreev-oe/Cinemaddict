@@ -165,7 +165,7 @@ export default class FilmsPresenter {
         await this.#filmsModel.updateFilm(updateType, filmData);
         this.#films = this.#filmsModel.getFilms();
         if (!this.#films.length) {
-          this.#popupPresenter.popupView.shakeAbsolute();
+          this.#popupPresenter.popupView.setFormShake();
           this.#uiBlocker.unblock();
           return;
         }
@@ -180,7 +180,7 @@ export default class FilmsPresenter {
         this.#films = this.#filmsModel.getFilms();
         if (!this.#films.length) {
           this.#popupPresenter.commentDeleteBtn = DeleteButtonText.DELETE;
-          this.#popupPresenter.popupView.shakeAbsolute();
+          this.#popupPresenter.popupView.setCommentShake();
           this.#uiBlocker.unblock();
           return;
         }
