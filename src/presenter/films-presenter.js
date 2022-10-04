@@ -107,6 +107,7 @@ export default class FilmsPresenter {
   };
 
   #userActionHandler = async (actionType, updateType, filmData, commentData) => {
+    let filmToUpdate = {};
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         await this.#filmsModel.updateFilm(updateType, filmData);
@@ -130,15 +131,17 @@ export default class FilmsPresenter {
         }
         break;
       case UserAction.ADD_COMMENT:
-        this.#commentsModel.addComment(updateType, commentData);
+        await this.#commentsModel.addComment(updateType, commentData, filmData);
         await this.#filmsModel.updateFilm(updateType, filmData);
-        this.#updateFilm(filmData);
+        filmToUpdate = this.#filmsModel.getFilms().find((film) => film.id === filmData.id);
+        this.#updateFilm(filmToUpdate);
         this.#popupPresenter.updatePopup();
         break;
       case UserAction.DELETE_COMMENT:
-        this.#commentsModel.deleteComment(updateType, commentData);
+        await this.#commentsModel.deleteComment(updateType, commentData);
         await this.#filmsModel.updateFilm(updateType, filmData);
-        this.#updateFilm(filmData);
+        filmToUpdate = this.#filmsModel.getFilms().find((film) => film.id === filmData.id);
+        this.#updateFilm(filmToUpdate);
         this.#popupPresenter.updatePopup();
         break;
     }

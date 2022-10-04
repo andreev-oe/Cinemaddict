@@ -15,8 +15,8 @@ const headerElement = document.querySelector('.header');
 const mainElement = document.querySelector('.main');
 const footerElement = document.querySelector('.footer');
 
+const filmsModel = new FilmsModel(filmsApiService);
 const commentsModel = new CommentsModel(commentsApiService);
-const filmsModel = new FilmsModel(filmsApiService, commentsApiService);
 const filterModel = new FiltersModel();
 const filmsPresenter = new FilmsPresenter(headerElement, mainElement, footerElement, filmsModel, commentsModel, filterModel);
 

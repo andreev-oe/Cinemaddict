@@ -23,7 +23,6 @@
     "webpack-cli": "4.10.0",
     "webpack-dev-server": "4.9.3",
     "copy-webpack-plugin": "10.2.4",
-    "nanoid": "3.3.4",
     "he": "1.2.0"
   },
   "engines": {

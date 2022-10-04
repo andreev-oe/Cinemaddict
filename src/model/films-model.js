@@ -2,13 +2,11 @@ import Observable from '../framework/observable.js';
 
 export default class FilmsModel extends Observable{
   #filmsApiService = null;
-  #commentsApiService = null;
   #films = [];
 
-  constructor(filmsApiService, commentsApiService) {
+  constructor(filmsApiService) {
     super();
     this.#filmsApiService = filmsApiService;
-    this.#commentsApiService = commentsApiService;
   }
 
   getFilms () {
@@ -19,7 +17,7 @@ export default class FilmsModel extends Observable{
     const index = this.#films.findIndex((film) => film.id === newFilmData.id);
     try {
       const film = await this.#filmsApiService.updateFilm(newFilmData);
-      const adaptedFilm = this.#filmsApiService.adaptToClient(film);
+      const adaptedFilm = this.#filmsApiService.adaptFilmToClient(film);
       this.#films = [
         ...this.#films.slice(0, index),
         adaptedFilm,
@@ -34,7 +32,7 @@ export default class FilmsModel extends Observable{
   init = async (updateType) => {
     try {
       const films = await this.#filmsApiService.films;
-      this.#films = films.map((film) => this.#filmsApiService.adaptToClient(film));
+      this.#films = films.map((film) => this.#filmsApiService.adaptFilmToClient(film));
     } catch(err) {
       this.#films = [];
     }

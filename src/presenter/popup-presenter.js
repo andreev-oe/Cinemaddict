@@ -8,10 +8,6 @@ import {
   UserAction,
   DEFAULT_EMOJI
 } from '../constants.js';
-import dayjs from 'dayjs';
-import {customAlphabet} from 'nanoid';
-
-const nanoid = customAlphabet('1234567890', 10);
 
 export default class PopupPresenter {
   #filmPopupView = null;
@@ -84,6 +80,8 @@ export default class PopupPresenter {
   };
 
   renderPopup = (evt) => {
+    this.#films = this.#filmsModel.getFilms();
+    this.#film = this.#films[evt.target.dataset.filmId];
     this.#comments = this.#commentsModel.getAllComments();
     this.#evt = evt;
     const prevPopupView = this.#filmPopupView;
@@ -166,13 +164,9 @@ export default class PopupPresenter {
 
   #onCommentAddButtonsPress = (evt, selectedEmoji = DEFAULT_EMOJI) => {
     const commentToAdd = {
-      id: nanoid(),
-      author: 'defaultUser',
       comment: evt.target.value,
-      date: dayjs(),
       emotion: selectedEmoji,
     };
-    this.#film.comments.push(commentToAdd.id);
     this.#changeData(
       UserAction.ADD_COMMENT,
       UpdateType.PATCH,
