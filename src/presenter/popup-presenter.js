@@ -3,7 +3,6 @@ import {
   remove,
   render
 } from '../framework/render.js';
-import {updateFilm} from '../utils/utilities.js';
 import {
   UpdateType,
   UserAction,
@@ -15,7 +14,7 @@ import {customAlphabet} from 'nanoid';
 const nanoid = customAlphabet('1234567890', 10);
 
 export default class PopupPresenter {
-  #filmPopup = null;
+  #filmPopupView = null;
   #films = null;
   #comments = null;
   #mainContainer = null;
@@ -24,12 +23,17 @@ export default class PopupPresenter {
   #popupClosed = true;
   #changeData = null;
   #film = null;
+  #filmsModel = null;
+  #commentsModel = null;
+  #scrollTop = null;
 
   constructor(filmsModel, commentsModel, mainContainer, changeData) {
     this.#films = [...filmsModel.getFilms()];
+    this.#filmsModel = filmsModel;
+    this.#commentsModel = commentsModel;
     this.#comments = [...commentsModel.getAllComments()];
     this.#mainContainer = mainContainer;
-    this.#filmPopup = null;
+    this.#filmPopupView = null;
     this.#popupPresenter = new Map();
     this.#changeData = changeData;
   }
@@ -53,11 +57,14 @@ export default class PopupPresenter {
 
   onFilmImgClick = (evt) => {
     if (evt.target.nodeName === 'IMG' && evt.target.dataset.filmId){
-      if (this.#filmPopup) {
+      this.#films = this.#filmsModel.getFilms();
+      if (this.#filmPopupView) {
         this.destroy();
       }
+      this.#film = this.#films[evt.target.dataset.filmId];
       this.renderPopup(evt);
       this.#popupClosed = false;
+      this.#commentsModel.init(UpdateType.PATCH, this.#film);
     }
   };
 
@@ -65,48 +72,70 @@ export default class PopupPresenter {
     return this.#popupClosed;
   }
 
-  updatePopup = (popupToUpdate) => {
-    if (this.#filmPopup !== null) {
-      this.#films = updateFilm(this.#films, popupToUpdate);
+  updatePopup = () => {
+    if (this.#filmPopupView !== null) {
+      this.#films = this.#filmsModel.getFilms();
+      if (!this.#films.length) {
+        this.#filmPopupView.shakeAbsolute();
+        return;
+      }
       this.renderPopup(this.#evt);
     }
   };
 
   renderPopup = (evt) => {
+    this.#comments = this.#commentsModel.getAllComments();
     this.#evt = evt;
-    this.#film = this.#films[evt.target.dataset.filmId];
-    const prevPopupView = this.#filmPopup;
-    this.#filmPopup = new FilmPopupView(this.#film, this.#comments);
-    this.#filmPopup.setOnAddToFavoritesButtonClick(this.#onAddToFavoritesButtonClick);
-    this.#filmPopup.setOnAddToWatchButtonClick(this.#onAddToWatchedButtonClick);
-    this.#filmPopup.setOnAddToWatchedButtonClick(this.#onAddToWatchButtonClick);
-    this.#filmPopup.setOnEmojiClick(this.#onEmojiClick);
-    this.#filmPopup.setOnCommentDeleteButtonClick(this.#onDeleteCommentButtonClick);
-    this.#filmPopup.setOnCommentAddButtonsPress(this.#onCommentAddButtonsPress);
+    const prevPopupView = this.#filmPopupView;
+    this.#filmPopupView = new FilmPopupView(this.#film, this.#comments);
+    this.#filmPopupView.setOnAddToFavoritesButtonClick(this.#onAddToFavoritesButtonClick);
+    this.#filmPopupView.setOnAddToWatchButtonClick(this.#onAddToWatchedButtonClick);
+    this.#filmPopupView.setOnAddToWatchedButtonClick(this.#onAddToWatchButtonClick);
+    this.#filmPopupView.setOnEmojiClick(this.#onEmojiClick);
+    this.#filmPopupView.setOnCommentDeleteButtonClick(this.#onDeleteCommentButtonClick);
+    this.#filmPopupView.setOnCommentAddButtonsPress(this.#onCommentAddButtonsPress);
     document.body.addEventListener('keydown', this.#onEscKeyDown);
-    this.#filmPopup.setOnClosePopupButtonClick(this.#onClosePopupButtonClick);
+    this.#filmPopupView.setOnClosePopupButtonClick(this.#onClosePopupButtonClick);
     if (prevPopupView === null) {
       document.body.classList.add('hide-overflow');
-      render(this.#filmPopup, this.#mainContainer);
+      render(this.#filmPopupView, this.#mainContainer);
+      this.#scrollTop = 0;
       return;
     }
     if (prevPopupView.element) {
+      this.#scrollTop = prevPopupView.element.scrollTop;
       document.body.classList.add('hide-overflow');
-      render(this.#filmPopup, this.#mainContainer);
+      render(this.#filmPopupView, this.#mainContainer);
     }
+    this.#filmPopupView.element.scrollTop = this.#scrollTop;
     remove(prevPopupView);
   };
 
   #onAddToFavoritesButtonClick = (film) => {
     film.userDetails.favorite = !film.userDetails.favorite;
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      film,
+    );
   };
 
   #onAddToWatchedButtonClick = (film) => {
     film.userDetails.alreadyWatched = !film.userDetails.alreadyWatched;
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      film,
+    );
   };
 
   #onAddToWatchButtonClick = (film) => {
     film.userDetails.watchlist = !film.userDetails.watchlist;
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      film,
+    );
   };
 
   #onEmojiClick = (evt, emojiInputs, setNewCommentEmoji) => {
@@ -119,7 +148,7 @@ export default class PopupPresenter {
   };
 
   #onDeleteCommentButtonClick = (evt) => {
-    const commentId = Number(evt.target.dataset.commentId);
+    const commentId = evt.target.dataset.commentId;
     const commentIdIndex = this.#film.comments.findIndex((comment) => comment === commentId);
     const commentToDelete = this.#comments.find((comment) => comment.id === commentId);
     this.#changeData(
@@ -137,14 +166,13 @@ export default class PopupPresenter {
 
   #onCommentAddButtonsPress = (evt, selectedEmoji = DEFAULT_EMOJI) => {
     const commentToAdd = {
-      id: Number(nanoid()),
+      id: nanoid(),
       author: 'defaultUser',
       comment: evt.target.value,
       date: dayjs(),
       emotion: selectedEmoji,
     };
     this.#film.comments.push(commentToAdd.id);
-    this.#comments.push(commentToAdd);
     this.#changeData(
       UserAction.ADD_COMMENT,
       UpdateType.PATCH,
@@ -153,5 +181,5 @@ export default class PopupPresenter {
     );
   };
 
-  destroy = () => remove(this.#filmPopup);
+  destroy = () => remove(this.#filmPopupView);
 }

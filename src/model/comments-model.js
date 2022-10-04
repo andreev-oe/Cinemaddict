@@ -1,20 +1,16 @@
-import {FILM_CARDS_AMOUNT} from '../constants.js';
-import {getComment} from '../temp-data/temp.js';
 import Observable from '../framework/observable.js';
 
 export default class CommentsModel extends Observable{
-  #comments = Array.from({length:  FILM_CARDS_AMOUNT}, getComment);
-  #filmComments = null;
+  #comments = [];
+  #commentsApiService = null;
+
+  constructor(commentsApiService) {
+    super();
+    this.#commentsApiService = commentsApiService;
+  }
 
   getAllComments () {
     return this.#comments;
-  }
-
-  getFilmComments (film) {
-    this.#filmComments = film.comments.map((commentId) => {
-      this.#comments.find((comment) => comment.id === commentId);
-    });
-    return this.#filmComments;
   }
 
   addComment (updateType, commentData) {
@@ -33,4 +29,14 @@ export default class CommentsModel extends Observable{
     ];
     this._notify(updateType, commentData);
   }
+
+  init = async (updateType, film) => {
+    try {
+      const comments = await this.#commentsApiService.comments(film);
+      this.#comments = this.#commentsApiService.adaptToClient(comments);
+    } catch(err) {
+      this.#comments = [];
+    }
+    this._notify(updateType, film);
+  };
 }

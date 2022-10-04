@@ -1,5 +1,5 @@
 import {
-  FILMS_PORTION, FilterType,
+  FILMS_PORTION, FilterType, UpdateType,
   UserAction
 } from '../constants.js';
 import PopupPresenter from './popup-presenter.js';
@@ -23,7 +23,6 @@ import {
   sortByDay,
   sortByRating,
 } from '../utils/sort.js';
-import {updateFilm} from '../utils/utilities.js';
 
 export default class FilmsPresenter {
   #filmsMainContainerComponent = new FilmsContainerView();
@@ -37,6 +36,7 @@ export default class FilmsPresenter {
   #footerStatisticsView = null;
   #profileView = null;
   #films = null;
+  #srcFilms = null;
   #comments = null;
   #filmSortView = null;
   #filterView = null;
@@ -58,14 +58,14 @@ export default class FilmsPresenter {
     this.#commentsModel = commentsModel;
     this.#filterModel = filterModel;
     this.#films = [...this.#filmsModel.getFilms()];
+    this.#srcFilms = [...this.#filmsModel.getFilms()];
     this.#comments = [...this.#commentsModel.getAllComments()];
-    this.#filmSortView = new FilmsSortView(this.#films);
-    this.#filterView = new FilterView(this.#films, this.#selectedFilter);
-    this.#footerStatisticsView = new FooterStatisticsView(this.#films);
     this.#profileView = new ProfileView();
-    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
     this.#showMoreButtonPresenter = new ShowMoreButtonPresenter();
     this.#filmPresenter = new Map();
+    this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#commentsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get films () {
@@ -89,52 +89,58 @@ export default class FilmsPresenter {
   }
 
   init = (films = this.#films) => {
+    const prevFilterView = this.#filterView;
     this.#films = films;
+    this.#filterView = new FilterView(this.#srcFilms, films, this.#selectedFilter, this.#filmsModel);
+    if (prevFilterView) {
+      replace(this.#filterView, prevFilterView);
+      remove(prevFilterView);
+    }
+    this.#filmSortView = new FilmsSortView(films);
     this.#filmSortView.films = films;
+    if (this.#popupPresenter) {
+      document.body.removeEventListener('click', this.#popupPresenter.onFilmImgClick);
+    }
+    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
+    this.#popupPresenter.setScrollPosition = 0;
     this.#renderPage(films);
-    document.body.addEventListener('click', this.#onControlButtonClick);
   };
 
-  #userActionHandler = (actionType, updateType, filmData, commentData) => {
+  #userActionHandler = async (actionType, updateType, filmData, commentData) => {
     switch (actionType) {
       case UserAction.UPDATE_FILM:
-        this.#filmsModel.updateFilms(updateType, filmData);
+        await this.#filmsModel.updateFilm(updateType, filmData);
+        this.#films = this.#filmsModel.getFilms();
+        if (!this.#films.length) {
+          this.#filmPresenter.get(filmData.id).filmCardView.shake();
+          return;
+        }
         this.#updateFilm(filmData);
+        this.#filterView.setFilterButtonsHandlers(
+          this.#filterModel.filterAll,
+          this.#filterModel.filterWatchList,
+          this.#filterModel.filterHistory,
+          this.#filterModel.filterFavorites,
+          this.#shownFilteredFilmCards,
+          this,
+          this.#filmSortView.defaultSort
+        );
+        if (!this.#popupPresenter.popupClosedState) {
+          this.#popupPresenter.updatePopup();
+        }
         break;
       case UserAction.ADD_COMMENT:
         this.#commentsModel.addComment(updateType, commentData);
-        this.#filmsModel.updateFilms(updateType, filmData);
+        await this.#filmsModel.updateFilm(updateType, filmData);
         this.#updateFilm(filmData);
-        this.#popupPresenter.updatePopup(filmData);
+        this.#popupPresenter.updatePopup();
         break;
       case UserAction.DELETE_COMMENT:
         this.#commentsModel.deleteComment(updateType, commentData);
-        this.#filmsModel.updateFilms(updateType, filmData);
+        await this.#filmsModel.updateFilm(updateType, filmData);
         this.#updateFilm(filmData);
-        this.#popupPresenter.updatePopup(filmData);
+        this.#popupPresenter.updatePopup();
         break;
-    }
-  };
-
-  #onControlButtonClick = (evt) =>{
-    if (evt.target.dataset.button) {
-      const i = evt.target.parentNode.dataset.filmId;
-      this.#updateFilm(this.#films.find((film) => film.id === Number(i)));
-      const prevFilterView = this.#filterView;
-      this.#filterView = new FilterView(this.#films, this.#selectedFilter);
-      replace(this.#filterView, prevFilterView);
-      remove(prevFilterView);
-      this.#filterView.setFilterButtonsHandlers(
-        this.#filterModel.filterAll,
-        this.#filterModel.filterWatchList,
-        this.#filterModel.filterHistory,
-        this.#filterModel.filterFavorites,
-        this.#shownFilteredFilmCards,
-        this
-      );
-      if (!this.#popupPresenter.popupClosedState) {
-        this.#popupPresenter.updatePopup(this.#films[i]);
-      }
     }
   };
 
@@ -143,6 +149,11 @@ export default class FilmsPresenter {
     render(this.#profileView, this.#headerContainer);
     render(this.#filterView, this.#mainContainer);
     render(this.#filmSortView, this.#mainContainer);
+    const prevFooterStatisticView = this.#footerStatisticsView;
+    if (prevFooterStatisticView) {
+      remove(prevFooterStatisticView);
+    }
+    this.#footerStatisticsView = new FooterStatisticsView(this.#srcFilms);
     render(this.#footerStatisticsView, this.#footerContainer);
     this.renderContent(films);
   };
@@ -204,7 +215,7 @@ export default class FilmsPresenter {
   };
 
   #renderFilmCard = (i, films = this.#films, comments = this.#comments, container = this.#filmContainerComponent) => {
-    const filmCard = new FilmCardPresenter(films[i], comments[i], container.element);
+    const filmCard = new FilmCardPresenter(films[i], comments[i], container.element, this.#userActionHandler);
     this.#shownFilteredFilmCards.push(filmCard);
     this.#shownSortedFilmCards.push(filmCard);
     filmCard.renderFilmCard(films[i]);
@@ -220,7 +231,35 @@ export default class FilmsPresenter {
   };
 
   #updateFilm = (filmToUpdate) => {
-    this.#films = updateFilm(this.#filmsModel.getFilms(), filmToUpdate);
+    this.#films = this.#filmsModel.getFilms();
     this.#filmPresenter.get(filmToUpdate.id).renderFilmCard(filmToUpdate);
+  };
+
+  #handleModelEvent = (updateType) => {
+    const prevFilterView = this.#filterView;
+    switch (updateType) {
+      case UpdateType.INIT:
+        this.#srcFilms = this.#filmsModel.getFilms();
+        this.init(this.#srcFilms);
+        break;
+      case UpdateType.PATCH:
+        if (!this.#popupPresenter.popupClosedState) {
+          this.#popupPresenter.updatePopup();
+        }
+        this.#filterView = new FilterView(this.#srcFilms, this.#films, this.#selectedFilter, this.#filmsModel);
+        if (prevFilterView) {
+          replace(this.#filterView, prevFilterView);
+          remove(prevFilterView);
+        }
+        this.#filterView.setFilterButtonsHandlers(
+          this.#filterModel.filterAll,
+          this.#filterModel.filterWatchList,
+          this.#filterModel.filterHistory,
+          this.#filterModel.filterFavorites,
+          this.#shownFilteredFilmCards,
+          this,
+          this.#filmSortView.defaultSort);
+        break;
+    }
   };
 }

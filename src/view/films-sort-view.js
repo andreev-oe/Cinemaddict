@@ -83,7 +83,7 @@ export default class FilmsSortView extends AbstractView {
       return;
     }
     this.#clearContent(this);
-    const filteredFilms = this._callback.defaultSort(this.#srcFilms, this.#films,this.#defaultSortButton, this.#activeButtonClass);
+    const filteredFilms = this._callback.defaultSort(this.#srcFilms, this.#films, this.#defaultSortButton, this.#activeButtonClass);
     this._callback.filmsInit(filteredFilms);
   };
 
