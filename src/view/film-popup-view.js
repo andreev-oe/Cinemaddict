@@ -13,29 +13,25 @@ dayjs.extend(relativeTime);
 
 const createCommentElement = (commentsId, commentsText) => {
   const divElement = document.createElement('div');
-  for (let i = 0; i < commentsText.length; i++) {
-    divElement.textContent += `<li class="film-details__comment comment-id-${commentsText[i].id}">
+  divElement.textContent = commentsText.map((commentText) => `<li class="film-details__comment comment-id-${commentText.id}">
             <span class="film-details__comment-emoji">
-              <img src="./images/emoji/${commentsText[i].emotion}.png" width="55" height="55" alt="emoji-${commentsText[i].emotion}">
+              <img src="./images/emoji/${commentText.emotion}.png" width="55" height="55" alt="emoji-${commentText.emotion}">
             </span>
             <div>
-              <p class="film-details__comment-text">${he.encode(commentsText[i].comment)}</p>
+              <p class="film-details__comment-text">${he.encode(commentText.comment)}</p>
               <p class="film-details__comment-info">
-                <span class="film-details__comment-author">${commentsText[i].author}</span>
-                <span class="film-details__comment-day">${dayjs(commentsText[i].date).fromNow()}</span>
-                <button class="film-details__comment-delete" data-comment-id = "${commentsText[i].id}">Delete</button>
+                <span class="film-details__comment-author">${commentText.author}</span>
+                <span class="film-details__comment-day">${dayjs(commentText.date).fromNow()}</span>
+                <button class="film-details__comment-delete" data-comment-id = "${commentText.id}">Delete</button>
               </p>
             </div>
-          </li>`;
-  }
+          </li>`).join('');
   return divElement.textContent;
 };
 
-const createGenreElement = (genre) => {
+const createGenreElement = (genres) => {
   const divElement = document.createElement('div');
-  for (let i = 0; i < genre.length; i++) {
-    divElement.textContent += `<span class="film-details__genre">${genre[i]}</span>`;
-  }
+  divElement.textContent = genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join('');
   return divElement.textContent;
 };
 

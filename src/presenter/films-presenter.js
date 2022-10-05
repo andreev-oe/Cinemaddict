@@ -264,17 +264,20 @@ export default class FilmsPresenter {
   };
 
   #renderFilmCards = (films) => {
-    for (let i = 0; i < Math.min(films.length, FILMS_PORTION); i++) {
-      this.#renderFilmCard(i, films);
-    }
+    films.map((_film, index) => {
+      if (index >= Math.min(films.length, FILMS_PORTION)) {
+        return;
+      }
+      this.#renderFilmCard(index, films);
+    });
   };
 
-  #renderFilmCard = (i, films = this.#films, comments = this.#comments, container = this.#filmContainerComponent) => {
-    const filmCard = new FilmCardPresenter(films[i], comments[i], container.element, this.#userActionHandler);
+  #renderFilmCard = (index, films = this.#films, comments = this.#comments, container = this.#filmContainerComponent) => {
+    const filmCard = new FilmCardPresenter(films[index], comments[index], container.element, this.#userActionHandler);
     this.#shownFilteredFilmCards.push(filmCard);
     this.#shownSortedFilmCards.push(filmCard);
-    filmCard.renderFilmCard(films[i]);
-    this.#filmPresenters.set(films[i].id, filmCard);
+    filmCard.renderFilmCard(films[index]);
+    this.#filmPresenters.set(films[index].id, filmCard);
   };
 
   #updateFilm = (filmToUpdate) => {

@@ -14,7 +14,6 @@ export default class PopupPresenter {
   #films = null;
   #comments = null;
   #mainContainer = null;
-  #popupPresenter = null;
   #evt = null;
   #popupClosed = true;
   #changeData = null;
@@ -34,7 +33,6 @@ export default class PopupPresenter {
     this.#comments = [...commentsModel.comments];
     this.#mainContainer = mainContainer;
     this.#filmPopupView = null;
-    this.#popupPresenter = new Map();
     this.#changeData = changeData;
     this.#uiBlocker = UiBlocker;
   }
