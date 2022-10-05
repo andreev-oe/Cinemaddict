@@ -47,6 +47,10 @@ export default class FilmCardView extends AbstractView {
     return createFilmCardElement(this.#film);
   }
 
+  get film () {
+    return this.#film;
+  }
+
   setOnAddToFavoritesButtonClick = (eventListener) => {
     this._callback.onFavoriteClick = eventListener;
     this.element.querySelector('.film-card__controls-item--favorite').addEventListener('click', this.#onAddToFavoritesButtonClick);

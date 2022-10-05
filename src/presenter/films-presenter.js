@@ -50,7 +50,7 @@ export default class FilmsPresenter {
   #filterModel = null;
   #popupPresenter = null;
   #showMoreButtonPresenter = null;
-  #filmPresenter = null;
+  #filmPresenters = null;
   #shownFilteredFilmCards = [];
   #shownSortedFilmCards = [];
   #selectedFilter = FilterType.ALL;
@@ -67,7 +67,7 @@ export default class FilmsPresenter {
     this.#srcFilms = [...this.#filmsModel.films];
     this.#comments = [...this.#commentsModel.comments];
     this.#showMoreButtonPresenter = new ShowMoreButtonPresenter();
-    this.#filmPresenter = new Map();
+    this.#filmPresenters = new Map();
     this.#filmsModel.addObserver(this.#handleModelEvent);
     this.#commentsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -115,13 +115,14 @@ export default class FilmsPresenter {
     let filmToUpdate = {};
     const prevProfileView = this.#profileView;
     this.#uiBlocker.block();
+    const filmPresenter = this.#filmPresenters.get(filmData.id);
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         await this.#filmsModel.updateFilm(updateType, filmData);
         this.#films = this.#filmsModel.films;
         this.#srcFilms = this.#filmsModel.films;
         if (!this.#films.length) {
-          this.#filmPresenter.get(filmData.id).filmCardView.shake();
+          filmPresenter.filmCardView.shake();
           this.#uiBlocker.unblock();
           return;
         }
@@ -134,17 +135,17 @@ export default class FilmsPresenter {
             break;
           case FilterType.HISTORY:
             if (!filmData.userDetails.alreadyWatched) {
-              this.#filmPresenter.get(filmData.id).destroy();
+              filmPresenter.destroy();
             }
             break;
           case FilterType.FAVOURITES:
             if (!filmData.userDetails.favorite) {
-              this.#filmPresenter.get(filmData.id).destroy();
+              filmPresenter.destroy();
             }
             break;
           case FilterType.WATCHLIST:
             if (!filmData.userDetails.watchlist) {
-              this.#filmPresenter.get(filmData.id).destroy();
+              filmPresenter.destroy();
             }
             break;
         }
@@ -273,12 +274,12 @@ export default class FilmsPresenter {
     this.#shownFilteredFilmCards.push(filmCard);
     this.#shownSortedFilmCards.push(filmCard);
     filmCard.renderFilmCard(films[i]);
-    this.#filmPresenter.set(films[i].id, filmCard);
+    this.#filmPresenters.set(films[i].id, filmCard);
   };
 
   #updateFilm = (filmToUpdate) => {
     this.#films = this.#filmsModel.films;
-    this.#filmPresenter.get(filmToUpdate.id).renderFilmCard(filmToUpdate);
+    this.#filmPresenters.get(filmToUpdate.id).renderFilmCard(filmToUpdate);
   };
 
   #handleModelEvent = (updateType) => {
