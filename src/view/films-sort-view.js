@@ -34,16 +34,8 @@ export default class FilmsSortView extends AbstractView {
     return this.#shownFilmCards;
   }
 
-  get () {
-    return this.#films;
-  }
-
   get defaultSort () {
     return this.#onDefaultSortButtonClick;
-  }
-
-  set (films) {
-    this.#films = films;
   }
 
   #removeActiveButtonClass = () => {

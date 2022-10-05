@@ -9,31 +9,42 @@ export default class CommentsModel extends Observable{
     this.#commentsApiService = commentsApiService;
   }
 
-  getAllComments () {
+  get comments () {
     return this.#comments;
   }
 
-  addComment (updateType, commentData) {
-    this.#comments.push(commentData);
-    this._notify(updateType, commentData);
-  }
-
-  deleteComment (updateType, commentData) {
-    const index = this.#comments.findIndex((comment) => comment.id === commentData.id);
-    if (index === -1) {
-      throw new Error('comment does not exist');
+  addComment = async (updateType, commentData, filmData) => {
+    try {
+      const response = await this.#commentsApiService.addComment(filmData, commentData);
+      const updatedFilm = this.#commentsApiService.adaptFilmToClient(response.movie);
+      this.#comments = response.comments;
+      this._notify(updateType, updatedFilm);
+    } catch(err) {
+      this.#comments = [];
     }
-    this.#comments = [
-      ...this.#comments.slice(0, index),
-      ...this.#comments.slice(index + 1),
-    ];
-    this._notify(updateType, commentData);
-  }
+  };
+
+  deleteComment = async (updateType, commentData) => {
+    const index = this.#comments.findIndex((comment) => comment.id === commentData.id);
+    try {
+      await this.#commentsApiService.deleteComment(commentData);
+      if (index === -1) {
+        throw new Error('comment does not exist');
+      }
+      this.#comments = [
+        ...this.#comments.slice(0, index),
+        ...this.#comments.slice(index + 1),
+      ];
+      this._notify(updateType, commentData);
+    } catch (e) {
+      this.#comments = [];
+    }
+  };
 
   init = async (updateType, film) => {
     try {
       const comments = await this.#commentsApiService.comments(film);
-      this.#comments = this.#commentsApiService.adaptToClient(comments);
+      this.#comments = this.#commentsApiService.adaptCommentToClient(comments);
     } catch(err) {
       this.#comments = [];
     }

@@ -1,5 +1,8 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {FilterType} from '../constants.js';
+import {
+  ACTIVE_FILTER_BUTTON_CLASS,
+  FilterType
+} from '../constants.js';
 
 const countNavItems = (films) => {
   const items = {
@@ -26,7 +29,7 @@ export default class FilterView extends AbstractView {
   #filmsModel = null;
   #items = null;
   #filteredFilms = null;
-  #activeButtonClass = 'main-navigation__item--active';
+  #activeButtonClass = ACTIVE_FILTER_BUTTON_CLASS;
   #filterAllButton = null;
   #filterWatchListButton = null;
   #filterHistoryButton = null;
@@ -39,7 +42,7 @@ export default class FilterView extends AbstractView {
   constructor(srcFilms, films, selectedFilter, filmsModel) {
     super();
     this.#filmsModel = filmsModel;
-    this.#films = this.#filmsModel.getFilms();
+    this.#films = this.#filmsModel.films;
     this.#items = null;
     this.#selectedFilter = selectedFilter;
     this.#filteredFilms = films;
@@ -48,6 +51,18 @@ export default class FilterView extends AbstractView {
     this.#filterHistoryButton = this.element.querySelector('.main-navigation__item-history');
     this.#filterFavoritesButton = this.element.querySelector('.main-navigation__item-favourites');
     this.#filterButtons = this.element.children;
+  }
+
+  get template () {
+    return this.createNavigationElement(this.#films, this.#selectedFilter);
+  }
+
+  get films () {
+    return this.#films;
+  }
+
+  set films (films) {
+    this.#films = films;
   }
 
   get showedFilms () {
@@ -153,15 +168,4 @@ export default class FilterView extends AbstractView {
     this._callback.defaultSort(evt);
   };
 
-  get template () {
-    return this.createNavigationElement(this.#films, this.#selectedFilter);
-  }
-
-  get films () {
-    return this.#films;
-  }
-
-  set films (films) {
-    this.#films = films;
-  }
 }

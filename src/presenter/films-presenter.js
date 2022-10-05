@@ -1,5 +1,8 @@
 import {
-  FILMS_PORTION, FilterType, UpdateType,
+  DeleteButtonText,
+  FILMS_PORTION,
+  FilterType,
+  UpdateType,
   UserAction
 } from '../constants.js';
 import PopupPresenter from './popup-presenter.js';
@@ -13,6 +16,7 @@ import FilmsSortView from '../view/films-sort-view.js';
 import FilterView from '../view/filter-view.js';
 import ProfileView from '../view/profile-view.js';
 import FooterStatisticsView from '../view/footer-statistics-view.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import {
   remove,
   render,
@@ -23,6 +27,7 @@ import {
   sortByDay,
   sortByRating,
 } from '../utils/sort.js';
+import {UiBlockerLimit} from '../constants.js';
 
 export default class FilmsPresenter {
   #filmsMainContainerComponent = new FilmsContainerView();
@@ -45,10 +50,11 @@ export default class FilmsPresenter {
   #filterModel = null;
   #popupPresenter = null;
   #showMoreButtonPresenter = null;
-  #filmPresenter = null;
+  #filmPresenters = null;
   #shownFilteredFilmCards = [];
   #shownSortedFilmCards = [];
   #selectedFilter = FilterType.ALL;
+  #uiBlocker = new UiBlocker(UiBlockerLimit.LOWER_LIMIT, UiBlockerLimit.UPPER_LIMIT);
 
   constructor(headerContainer, mainContainer, footerContainer, filmsModel, commentsModel, filterModel) {
     this.#headerContainer = headerContainer;
@@ -57,12 +63,11 @@ export default class FilmsPresenter {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
     this.#filterModel = filterModel;
-    this.#films = [...this.#filmsModel.getFilms()];
-    this.#srcFilms = [...this.#filmsModel.getFilms()];
-    this.#comments = [...this.#commentsModel.getAllComments()];
-    this.#profileView = new ProfileView();
+    this.#films = [...this.#filmsModel.films];
+    this.#srcFilms = [...this.#filmsModel.films];
+    this.#comments = [...this.#commentsModel.comments];
     this.#showMoreButtonPresenter = new ShowMoreButtonPresenter();
-    this.#filmPresenter = new Map();
+    this.#filmPresenters = new Map();
     this.#filmsModel.addObserver(this.#handleModelEvent);
     this.#commentsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -72,12 +77,12 @@ export default class FilmsPresenter {
     return this.#films;
   }
 
-  get comments () {
-    return this.#commentsModel.comments;
-  }
-
   set films (films) {
     this.#films = films;
+  }
+
+  get comments () {
+    return this.#commentsModel.comments;
   }
 
   get filter () {
@@ -101,19 +106,48 @@ export default class FilmsPresenter {
     if (this.#popupPresenter) {
       document.body.removeEventListener('click', this.#popupPresenter.onFilmImgClick);
     }
-    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler);
+    this.#popupPresenter = new PopupPresenter(this.#filmsModel, this.#commentsModel, this.#mainContainer, this.#userActionHandler, this.#uiBlocker);
     this.#popupPresenter.setScrollPosition = 0;
     this.#renderPage(films);
   };
 
   #userActionHandler = async (actionType, updateType, filmData, commentData) => {
+    let filmToUpdate = {};
+    const prevProfileView = this.#profileView;
+    this.#uiBlocker.block();
+    const filmPresenter = this.#filmPresenters.get(filmData.id);
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         await this.#filmsModel.updateFilm(updateType, filmData);
-        this.#films = this.#filmsModel.getFilms();
+        this.#films = this.#filmsModel.films;
+        this.#srcFilms = this.#filmsModel.films;
         if (!this.#films.length) {
-          this.#filmPresenter.get(filmData.id).filmCardView.shake();
+          filmPresenter.filmCardView.shake();
+          this.#uiBlocker.unblock();
           return;
+        }
+        if (prevProfileView) {
+          this.#profileView = new ProfileView(this.#srcFilms);
+          replace(this.#profileView, prevProfileView);
+        }
+        switch (this.#selectedFilter) {
+          case FilterType.ALL:
+            break;
+          case FilterType.HISTORY:
+            if (!filmData.userDetails.alreadyWatched) {
+              filmPresenter.destroy();
+            }
+            break;
+          case FilterType.FAVOURITES:
+            if (!filmData.userDetails.favorite) {
+              filmPresenter.destroy();
+            }
+            break;
+          case FilterType.WATCHLIST:
+            if (!filmData.userDetails.watchlist) {
+              filmPresenter.destroy();
+            }
+            break;
         }
         this.#updateFilm(filmData);
         this.#filterView.setFilterButtonsHandlers(
@@ -130,22 +164,43 @@ export default class FilmsPresenter {
         }
         break;
       case UserAction.ADD_COMMENT:
-        this.#commentsModel.addComment(updateType, commentData);
+        await this.#commentsModel.addComment(updateType, commentData, filmData);
         await this.#filmsModel.updateFilm(updateType, filmData);
-        this.#updateFilm(filmData);
+        this.#films = this.#filmsModel.films;
+        if (!this.#films.length) {
+          this.#popupPresenter.popupView.setFormShake();
+          this.#uiBlocker.unblock();
+          return;
+        }
+        filmToUpdate = this.#filmsModel.films.find((film) => film.id === filmData.id);
+        this.#updateFilm(filmToUpdate);
         this.#popupPresenter.updatePopup();
         break;
       case UserAction.DELETE_COMMENT:
-        this.#commentsModel.deleteComment(updateType, commentData);
+        this.#popupPresenter.commentDeleteBtn = DeleteButtonText.DELETING;
+        await this.#commentsModel.deleteComment(updateType, commentData);
         await this.#filmsModel.updateFilm(updateType, filmData);
-        this.#updateFilm(filmData);
+        this.#films = this.#filmsModel.films;
+        if (!this.#films.length) {
+          this.#popupPresenter.commentDeleteBtn = DeleteButtonText.DELETE;
+          this.#popupPresenter.popupView.setCommentShake();
+          this.#uiBlocker.unblock();
+          return;
+        }
+        filmToUpdate = this.#filmsModel.films.find((film) => film.id === filmData.id);
+        this.#updateFilm(filmToUpdate);
         this.#popupPresenter.updatePopup();
         break;
     }
+    this.#uiBlocker.unblock();
   };
 
   #renderPage = (films = this.#films) => {
     this.#mainContainer.innerHTML = '';
+    if (this.#profileView) {
+      remove(this.#profileView);
+    }
+    this.#profileView = new ProfileView(this.#srcFilms);
     render(this.#profileView, this.#headerContainer);
     render(this.#filterView, this.#mainContainer);
     render(this.#filmSortView, this.#mainContainer);
@@ -219,27 +274,19 @@ export default class FilmsPresenter {
     this.#shownFilteredFilmCards.push(filmCard);
     this.#shownSortedFilmCards.push(filmCard);
     filmCard.renderFilmCard(films[i]);
-    this.#filmPresenter.set(films[i].id, filmCard);
-  };
-
-  #onShowMoreButtonClick = (films = this.#films) => {
-    films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film, index) => this.#renderFilmCard(index + this.#renderedFilmCards, films));
-    this.#renderedFilmCards += FILMS_PORTION;
-    if (this.#renderedFilmCards >= films.length) {
-      this.#showMoreButtonPresenter.destroy();
-    }
+    this.#filmPresenters.set(films[i].id, filmCard);
   };
 
   #updateFilm = (filmToUpdate) => {
-    this.#films = this.#filmsModel.getFilms();
-    this.#filmPresenter.get(filmToUpdate.id).renderFilmCard(filmToUpdate);
+    this.#films = this.#filmsModel.films;
+    this.#filmPresenters.get(filmToUpdate.id).renderFilmCard(filmToUpdate);
   };
 
   #handleModelEvent = (updateType) => {
     const prevFilterView = this.#filterView;
     switch (updateType) {
       case UpdateType.INIT:
-        this.#srcFilms = this.#filmsModel.getFilms();
+        this.#srcFilms = this.#filmsModel.films;
         this.init(this.#srcFilms);
         break;
       case UpdateType.PATCH:
@@ -260,6 +307,14 @@ export default class FilmsPresenter {
           this,
           this.#filmSortView.defaultSort);
         break;
+    }
+  };
+
+  #onShowMoreButtonClick = (films = this.#films) => {
+    films.slice(this.#renderedFilmCards, this.#renderedFilmCards + FILMS_PORTION).forEach((film, index) => this.#renderFilmCard(index + this.#renderedFilmCards, films));
+    this.#renderedFilmCards += FILMS_PORTION;
+    if (this.#renderedFilmCards >= films.length) {
+      this.#showMoreButtonPresenter.destroy();
     }
   };
 }
