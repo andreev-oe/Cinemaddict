@@ -130,25 +130,6 @@ export default class FilmsPresenter {
           this.#profileView = new ProfileView(this.#srcFilms);
           replace(this.#profileView, prevProfileView);
         }
-        switch (this.#selectedFilter) {
-          case FilterType.ALL:
-            break;
-          case FilterType.HISTORY:
-            if (!filmData.userDetails.alreadyWatched) {
-              filmPresenter.destroy();
-            }
-            break;
-          case FilterType.FAVOURITES:
-            if (!filmData.userDetails.favorite) {
-              filmPresenter.destroy();
-            }
-            break;
-          case FilterType.WATCHLIST:
-            if (!filmData.userDetails.watchlist) {
-              filmPresenter.destroy();
-            }
-            break;
-        }
         this.#updateFilm(filmData);
         this.#filterView.setFilterButtonsHandlers(
           this.#filterModel.filterAll,
@@ -275,14 +256,16 @@ export default class FilmsPresenter {
   #renderFilmCard = (index, films = this.#films, comments = this.#comments, container = this.#filmContainerComponent) => {
     const filmCard = new FilmCardPresenter(films[index], comments[index], container.element, this.#userActionHandler);
     this.#shownFilteredFilmCards.push(filmCard);
-    this.#shownSortedFilmCards.push(filmCard);
+    this.#shownSortedFilmCards = this.#shownFilteredFilmCards;
     filmCard.renderFilmCard(films[index]);
     this.#filmPresenters.set(films[index].id, filmCard);
   };
 
   #updateFilm = (filmToUpdate) => {
     this.#films = this.#filmsModel.films;
-    this.#filmPresenters.get(filmToUpdate.id).renderFilmCard(filmToUpdate);
+    if(this.#filmPresenters.get(filmToUpdate.id)) {
+      this.#filmPresenters.get(filmToUpdate.id).renderFilmCard(filmToUpdate);
+    }
   };
 
   #handleModelEvent = (updateType) => {
