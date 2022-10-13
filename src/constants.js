@@ -33,8 +33,8 @@ const ProfileRatingGrade = {
   MOVIE_BUFF: 21,
 };
 const UiBlockerLimit = {
-  LOWER_LIMIT: 200,
-  UPPER_LIMIT: 3000,
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 2000,
 };
 
 const DeleteButtonText = {
